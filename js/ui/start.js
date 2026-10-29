@@ -4,7 +4,7 @@ import { playSound, isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { renderBonusTags, applyBackstory } from '../backstory.js';
 import { rollDailyLife } from '../daily.js';
-import { clamp } from '../utils.js';
+import { clamp, escapeHtml, formatMoney } from '../utils.js';
 import { render } from './render.js';
 import { chronicle } from '../chronicle.js';
 
@@ -15,9 +15,23 @@ export function renderStart(app) {
       <button id="themeBtn">${getTheme() === 'dark' ? '🌙' : '☀️'}</button>
     </div>
     <div class="start-screen">
+      ${Legacy.nextChild ? `
+        <div class="dynasty-card">
+          <div class="dynasty-icon">${Legacy.nextChild.gender === 'f' ? '👧' : '👦'}</div>
+          <div class="dynasty-text">
+            <b>Продолжить династию: ${escapeHtml(Legacy.nextChild.name)}</b>
+            <span>${Legacy.nextChild.gender === 'f' ? 'Дочь' : 'Сын'} ${escapeHtml(Legacy.nextChild.parentName)},
+            поколение ${Legacy.nextChild.generation}. Наследство: +${Legacy.nextChild.inherit.int} интеллект,
+            +${Legacy.nextChild.inherit.charm} харизма, ${formatMoney(Legacy.nextChild.inherit.money)},
+            +${Legacy.nextChild.inherit.rep} репутация.</span>
+          </div>
+          <button class="start-btn" id="dynastyStart">👶 Прожить жизнь ${escapeHtml(Legacy.nextChild.name)}</button>
+          <button class="dynasty-skip" id="ownLife">Начать свою жизнь</button>
+        </div>
+      ` : ''}
       <h2>👋 Новая жизнь</h2>
       <p class="hint">С чего начнётся твоя жизнь? Это повлияет на всё.
-        ${Legacy.runs ? `<br><span class="muted small">Прожито жизней: ${Legacy.runs}</span>` : ''}
+        ${Legacy.runs ? `<br><span class="muted small">Прожито жизней: ${Legacy.runs}${Legacy.generation > 1 ? ` · поколение ${Legacy.generation}` : ''}</span>` : ''}
       </p>
 
       <div class="field">
@@ -54,6 +68,17 @@ export function renderStart(app) {
   document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
   document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
 
+  // Династия: продолжить жизнь ребёнка
+  const dynastyBtn = document.getElementById('dynastyStart');
+  if (dynastyBtn) dynastyBtn.onclick = () => startDynasty();
+  const ownLifeBtn = document.getElementById('ownLife');
+  if (ownLifeBtn) ownLifeBtn.onclick = () => {
+    delete Legacy.nextChild;
+    saveLegacy();
+    playSound('click');
+    render();
+  };
+
   const inp = document.getElementById('inpName');
   const btn = document.getElementById('startBtn');
   const pick = document.getElementById('genderPick');
@@ -64,7 +89,7 @@ export function renderStart(app) {
   let chosenGender = 'm';
   let chosenBs = null;
 
-  bsGrid.innerHTML = Object.values(BACKSTORIES).map(b => `
+  bsGrid.innerHTML = Object.values(BACKSTORIES).filter(b => !b.hidden).map(b => `
     <div class="backstory-card" data-bs="${b.id}">
       <div class="bs-head">
         <div class="bs-icon">${b.icon}</div>
@@ -175,4 +200,36 @@ function applyLegacyUpgrades() {
       }
     }
   }
+}
+
+// Новая жизнь за ребёнка героя: наследуются гены, деньги и имя.
+function startDynasty() {
+  const nc = Legacy.nextChild;
+  if (!nc) return;
+
+  S.name = nc.name;
+  S.gender = nc.gender;
+  S.backstory = 'dynasty';
+  applyBackstory();
+  applyLegacyUpgrades();
+
+  S.int += nc.inherit.int || 0;
+  S.charm += nc.inherit.charm || 0;
+  S.money += nc.inherit.money || 0;
+  S.rep = Math.min(100, S.rep + (nc.inherit.rep || 0));
+  S.avatarSeed = Math.random();
+  S.started = true;
+
+  Legacy.generation = nc.generation || (Legacy.generation || 1) + 1;
+  delete Legacy.nextChild;
+  saveLegacy();
+
+  const role = nc.gender === 'f' ? 'дочь' : 'сын';
+  addLog(`Ты — ${nc.name}, ${role} ${nc.parentName}. Династия продолжается.`);
+  chronicle('👨‍👩‍👧', `Поколение ${Legacy.generation}: ${nc.name}`);
+  rollDailyLife();
+  S.dailyLifeSeen = true;
+  playSound('levelup');
+  saveState();
+  render();
 }

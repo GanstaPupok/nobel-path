@@ -1,0 +1,20 @@
+{
+  "name": "Путь к Нобелевке",
+  "short_name": "Нобелевка",
+  "description": "Браузерная life-sim игра: проживи жизнь учёного до Нобелевской премии.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070a14",
+  "theme_color": "#070a14",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

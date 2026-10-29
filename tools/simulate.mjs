@@ -119,7 +119,7 @@ function smartPick(actions) {
   }
   // 3. Публикации и интеллект до нобелевских порогов
   if (s.publications < NOBEL.publications || s.rep < NOBEL.rep) {
-    const pub = byName('Опубликовать статью');
+    const pub = byName('Подготовить статью');
     if (pub && !pub.disabled) return pub;
   }
   if (s.int < NOBEL.int) return byName('Читать литературу');
@@ -146,6 +146,11 @@ function runLife({ policy = 'smart', reloads = false } = {}) {
     // «умный» игрок осознанно выбирает исследовательскую ветку
     if (policy === 'smart' && /Карьерный путь/.test(modal.title || '')) {
       opt = modal.opts.find(o => /Исследователь/.test(o.title));
+    }
+    if (policy === 'smart' && /Куда отправить статью/.test(modal.title || '')) {
+      const best = S().skills.write >= 30 && S().int >= 60 ? 'Топовый'
+        : S().skills.write >= 12 ? 'Обычный' : 'Сборник';
+      opt = modal.opts.find(o => o.title.includes(best));
     }
     if (!opt) opt = modal.opts[(Math.random() * modal.opts.length) | 0];
     opt.f();

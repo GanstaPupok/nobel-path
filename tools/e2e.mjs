@@ -327,6 +327,29 @@ const projectAfter = (await save())?.project;
 check('действие двигает проект вперёд', projectAfter && (projectAfter.progress > projectBefore || projectAfter.tier > 0),
   `прогресс ${projectBefore} → ${projectAfter?.progress}, этап ${projectAfter?.tier}`);
 
+// ---------- Выбор журнала ----------
+await evalJs(`(() => {
+  const tab = [...document.querySelectorAll('.action-tab')].find(t => t.textContent.includes('Наука'));
+  if (tab) tab.click();
+})()`);
+await sleep(200);
+await evalJs(`(() => {
+  const b = [...document.querySelectorAll('#actions button')].find(x => x.textContent.includes('Подготовить статью'));
+  if (b) b.click();
+})()`);
+await sleep(300);
+const journalOpts = await evalJs(`document.querySelectorAll('.modal .opt').length`);
+check('выбор журнала открывается', journalOpts === 3, `${journalOpts} вариантов`);
+const pubsBefore = (await save())?.publications;
+await evalJs(`(() => {
+  const opt = [...document.querySelectorAll('.modal .opt')].find(o => o.textContent.includes('Сборник конференции'));
+  if (opt) opt.click();
+})()`);
+await sleep(400);
+await clearOverlays();
+const pubsAfter = (await save())?.publications;
+check('статья уходит в журнал', pubsAfter === pubsBefore + 1, `публикаций ${pubsBefore} → ${pubsAfter}`);
+
 // ---------- Финал ----------
 await evalJs(`(() => {
   const raw = JSON.parse(localStorage.getItem('nobel_path_v6'));
@@ -352,6 +375,44 @@ await sleep(1000);
 check('новая жизнь начинается со старт-экрана', await evalJs(`!!document.querySelector('.start-screen')`));
 const legacyKeep = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}')`);
 check('наследие сохраняется между жизнями', (legacyKeep.points || 0) >= (legacyAfter.points || 0));
+
+// ---------- Династия ----------
+await evalJs(`(() => {
+  const s = {
+    version: 7, age: 58, name: 'Максим', gender: 'm', started: true, stage: 'career', position: 'директор НИИ',
+    int: 90, health: 60, charm: 70, money: 1000000, energy: 3, stress: 20, rep: 90,
+    skills: { math: 40, chem: 30, bio: 20, it: 30, write: 40 },
+    publications: 10, topPubs: 2, discoveries: 6, grants: 3,
+    finalReached: true, final: 'director', personaTitle: 'Профессор с семьёй',
+    achievements: [], flags: { projectDone: true }, log: [], quests: [],
+    arcs: {
+      love: { stage: 'married', years: 20, love: 70, partner: { id: 'creative', name: 'Аня', icon: '🎨', trait: 'creative' } },
+      family: { stage: 'adult', years: 20, childName: 'Миша', childGender: 'm', bond: 80 }
+    },
+    track: 'science', project: { id: 'quantum', tier: 3, progress: 0 }, chronicle: [], milestones: []
+  };
+  localStorage.setItem('nobel_path_v6', JSON.stringify(s));
+  localStorage.setItem('nobel_path_legacy', JSON.stringify({ points: 400, upgrades: {}, runs: 1, generation: 1 }));
+  location.reload();
+})()`);
+await sleep(1400);
+check('финал предлагает продолжить династию', await evalJs(`!!document.getElementById('dynastyBtn')`));
+await click('#dynastyBtn');
+await sleep(1200);
+check('стартовый экран предлагает ребёнка', await evalJs(`!!document.querySelector('.dynasty-card')`),
+  await evalJs(`document.querySelector('.dynasty-card b')?.textContent || 'нет'`));
+await click('#dynastyStart');
+await sleep(900);
+const dyn = await save();
+check('жизнь за ребёнка началась', dyn && dyn.started && dyn.backstory === 'dynasty' && dyn.name === 'Миша',
+  `${dyn?.name || '?'}, предыстория ${dyn?.backstory || '?'}`);
+check('наследство передано', (dyn?.int || 0) > 5 && (dyn?.money || 0) > 0,
+  `интеллект ${dyn?.int}, деньги ${dyn?.money}`);
+const gen = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}').generation`);
+check('поколение увеличилось', gen === 2, `поколение ${gen}`);
+
+// ---------- PWA ----------
+check('манифест подключён', await evalJs(`!!document.querySelector('link[rel="manifest"]')`));
 
 // ---------- Ошибки ----------
 const realErrors = errors.filter(e => !/favicon/i.test(e));

@@ -7,6 +7,7 @@ import { getGlobalModifier } from './world.js';
 import { addSkillPoint } from './skills.js';
 import { chronicle } from './chronicle.js';
 import { currentTier, addProjectProgress, progressPerAction, startProjectForSpec, projectDef } from './project.js';
+import { JOURNAL_TIERS, canSubmit, submitPaper } from './publishing.js';
 
 function rndSkill() { return SKILLS[Math.floor(Math.random() * SKILLS.length)]; }
 const d20 = () => Math.floor(Math.random() * 20) + 1;
@@ -257,13 +258,19 @@ export function getActions() {
       }
     }, 'danger', { moneyCost: 15000 });
 
-    add('📰 Опубликовать статью', 'Публикация +1, репутация +8', 1, () => {
-      // Каждая следующая статья даёт меньше репутации — иначе публикации «фармятся»
-      const repGain = Math.max(2, 9 - Math.floor(S.publications / 2));
-      S.publications++; S.rep = clamp(S.rep + repGain, 0, 100); S.stress = clamp(S.stress + 10, 0, 100);
-      addLog(`📰 Статья опубликована! Репутация +${repGain}.`); addSkillPoint(1); playSound('success');
-      if (S.publications >= 5) addAchievement('five_pubs');
-      if (S.publications >= 10) addAchievement('ten_pubs');
+    add('📰 Подготовить статью', 'Выбрать журнал: тезисы, обычный или топовый', 1, () => {
+      S.pendingModal = {
+        title: '📰 Куда отправить статью',
+        desc: 'Чем престижнее журнал, тем больше репутации — и тем выше риск отказа.',
+        opts: JOURNAL_TIERS.map(tier => ({
+          title: `${tier.icon} ${tier.title}`,
+          desc: canSubmit(tier) ? tier.desc : `${tier.desc} Сейчас не хватает навыков.`,
+          f: () => {
+            const res = submitPaper(tier.id);
+            if (res) addLog(res.text);
+          }
+        }))
+      };
     });
 
     add('✍️ Написать монографию', 'Публикации +2, деньги +30 000', 1, () => {

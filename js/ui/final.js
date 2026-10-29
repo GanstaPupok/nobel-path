@@ -1,4 +1,4 @@
-import { S, Legacy, newLife } from '../state.js';
+import { S, Legacy, newLife, saveLegacy } from '../state.js';
 import { ACHIEVEMENTS, BACKSTORIES } from '../config.js';
 import { FINALS } from '../finals.js';
 import { escapeHtml, formatMoney } from '../utils.js';
@@ -15,6 +15,7 @@ export function renderFinal(app) {
   const bs = S.backstory ? BACKSTORIES[S.backstory] : null;
   const life = arcSummary();
   const epilogue = buildEpilogue();
+  const child = S.arcs && S.arcs.family ? S.arcs.family.childName : null;
   const badges = S.achievements
     .map(id => ACHIEVEMENTS[id])
     .filter(Boolean)
@@ -62,10 +63,30 @@ export function renderFinal(app) {
       ${badges ? `<h3 class="final-ach-title">🏅 Достижения (${S.achievements.length})</h3>
         <div class="ach-list">${badges}</div>` : ''}
 
+      ${child ? `<button id="dynastyBtn" class="dynasty-btn">👶 Продолжить династию: ${escapeHtml(child)}</button>` : ''}
       <button id="resetBtn">🔄 Начать новую жизнь</button>
     </div>
   `;
   document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
   document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
   document.getElementById('resetBtn').onclick = () => newLife();
+  if (child) {
+    document.getElementById('dynastyBtn').onclick = () => {
+      Legacy.nextChild = {
+        name: child,
+        gender: S.arcs.family.childGender === 'f' ? 'f' : 'm',
+        parentName: S.name,
+        parentFinal: S.final,
+        generation: (Legacy.generation || 1) + 1,
+        inherit: {
+          int: Math.floor(S.int / 20),
+          charm: Math.floor(S.charm / 20),
+          money: Math.min(50000, Math.floor(S.money * 0.03)),
+          rep: Math.floor(S.rep / 10)
+        }
+      };
+      saveLegacy();
+      newLife();
+    };
+  }
 }

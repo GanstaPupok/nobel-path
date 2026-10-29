@@ -185,6 +185,13 @@ export const BACKSTORIES = {
     bonus:{health:20, int:-3, charm:3, stress:-5},
     flags:{athlete:true},
     tag:'Спортсмен · +здоровье'
+  },
+  dynasty:{
+    id:'dynasty', icon:'👨‍👩‍👧', title:'Ребёнок учёного',
+    desc:'Ты вырос в семье, где пахнет реактивами и старыми журналами. Родители ждут многого.',
+    bonus:{int:3, skills:{write:3}},
+    flags:{academicFamily:true, dynasty:true}, hidden:true,
+    tag:'Династия · +интеллект'
   }
 };
 

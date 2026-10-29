@@ -32,7 +32,7 @@ export function freshState() {
     int: 5, health: 100, charm: 5, money: 0, energy: 3, stress: 0, rep: 0,
     skills: { math: 0, chem: 0, bio: 0, it: 0, write: 0 },
     stage: 'child', spec: null,
-    publications: 0, discoveries: 0, grants: 0,
+    publications: 0, topPubs: 0, discoveries: 0, grants: 0,
     position: 'школьник', actedThisYear: 0,
     log: [], pendingEvent: null, pendingModal: null,
     finalReached: false, final: null,
@@ -99,7 +99,7 @@ function migrate(raw) {
 
   // Числовые характеристики: защита от NaN из старых сохранений и событий
   const base = freshState();
-  ['int', 'health', 'charm', 'money', 'stress', 'rep', 'publications', 'discoveries', 'age', 'year']
+  ['int', 'health', 'charm', 'money', 'stress', 'rep', 'publications', 'topPubs', 'discoveries', 'age', 'year']
     .forEach(k => { if (!Number.isFinite(s[k])) s[k] = base[k]; });
   for (const k of Object.keys(s.skills)) {
     if (!Number.isFinite(s.skills[k])) s.skills[k] = 0;

@@ -42,6 +42,9 @@ export function checkThresholds() {
   if (S.age >= 40 && S.health >= 100) addAchievement('healthy');
   if (S.stress >= 90) addAchievement('survivor');
   if (S.rep >= 60) addAchievement('published');
+  if (S.publications >= 5) addAchievement('five_pubs');
+  if (S.publications >= 10) addAchievement('ten_pubs');
+  if (S.topPubs >= 3) addAchievement('big_science');
 
   if (S.arcs && S.arcs.family && S.arcs.family.stage === 'kid') addAchievement('arc_family');
   if (S.flags && S.flags.abroad && S.int >= 60) addAchievement('polyglot');

@@ -520,6 +520,33 @@ button.end-year:hover:not(:disabled){filter:brightness(1.07);box-shadow:0 12px 2
 .final .epilogue p:last-child{margin-bottom:0;color:var(--muted);font-style:italic}
 
 /* ============================================================
+   ДИНАСТИЯ
+   ============================================================ */
+.dynasty-card{
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  background:linear-gradient(135deg,rgba(255,143,177,.14),rgba(124,92,255,.10)),var(--panel2);
+  border:1px solid rgba(255,143,177,.45);border-radius:16px;padding:14px;
+  animation:fadeInUp .4s ease;
+}
+.dynasty-icon{font-size:30px;line-height:1.1}
+.dynasty-text b{display:block;color:var(--pink);font-size:15px;margin-bottom:3px}
+.dynasty-text span{font-size:12px;color:var(--muted);line-height:1.5}
+.dynasty-card .start-btn{width:100%;margin-top:4px;background:linear-gradient(135deg,#c2185b,#e91e63);
+  box-shadow:0 10px 24px rgba(233,30,99,.32)}
+.dynasty-skip{
+  background:transparent;border:none;border-left:none;box-shadow:none;
+  color:var(--muted);font-size:12px;text-decoration:underline;padding:2px 0;
+  min-height:auto;text-align:left;
+}
+.dynasty-skip:hover{background:transparent;box-shadow:none;transform:none;color:var(--text)}
+.final .dynasty-btn{
+  background:linear-gradient(135deg,#c2185b,#e91e63);color:#fff;border:none;
+  padding:14px 24px;border-radius:14px;font-weight:700;margin-top:16px;width:100%;
+  box-shadow:0 10px 24px rgba(233,30,99,.35);font-size:15px;
+}
+.final .dynasty-btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(233,30,99,.5)}
+
+/* ============================================================
    АНИМАЦИИ И АДАПТИВ
    ============================================================ */
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
