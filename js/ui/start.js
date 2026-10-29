@@ -15,7 +15,7 @@ export function renderStart(app) {
     </div>
     <div class="start-screen">
       <h2>👋 Новая жизнь</h2>
-      <p class="hint">Кем ты родился? Это повлияет на всю жизнь.
+      <p class="hint">С чего начнётся твоя жизнь? Это повлияет на всё.
         ${Legacy.runs ? `<br><span class="muted small">Прожито жизней: ${Legacy.runs}</span>` : ''}
       </p>
 

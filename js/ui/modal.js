@@ -4,6 +4,7 @@ import { render } from './render.js';
 import { playSound } from '../audio.js';
 import { SKILL_TREE, ACHIEVEMENTS } from '../config.js';
 import { buyPerk, canBuyPerk } from '../skills.js';
+import { g } from '../text.js';
 
 export function renderModal(app) {
   const m = S.pendingModal;
@@ -15,8 +16,8 @@ export function renderModal(app) {
   app.innerHTML = `
     <div class="modal-bg">
       <div class="modal">
-        <h2>${escapeHtml(m.title)}</h2>
-        <p>${escapeHtml(m.desc)}</p>
+        <h2>${escapeHtml(g(m.title))}</h2>
+        <p>${escapeHtml(g(m.desc))}</p>
         <div class="opts" id="modalOpts"></div>
       </div>
     </div>
@@ -25,7 +26,7 @@ export function renderModal(app) {
   m.opts.forEach(o => {
     const d = document.createElement('div');
     d.className = 'opt';
-    d.innerHTML = `<h4>${escapeHtml(o.title)}</h4><p>${escapeHtml(o.desc)}</p>`;
+    d.innerHTML = `<h4>${escapeHtml(g(o.title))}</h4><p>${escapeHtml(g(o.desc))}</p>`;
     d.onclick = () => {
       playSound('click');
       o.f();

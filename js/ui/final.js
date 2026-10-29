@@ -7,6 +7,7 @@ import { getAvatar, statHTML } from './game.js';
 import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
+import { g } from '../text.js';
 
 export function renderFinal(app) {
   const f = FINALS[S.final] || FINALS.teacher;
@@ -25,9 +26,9 @@ export function renderFinal(app) {
     </div>
     <div class="final">
       <div class="final-avatar">${getAvatar()}</div>
-      <h2 style="color:${f.color}">${escapeHtml(f.title)}</h2>
+      <h2 style="color:${f.color}">${escapeHtml(g(f.title))}</h2>
       ${bs ? `<p class="muted small">${bs.icon} ${bs.title}</p>` : ''}
-      <div class="desc">${escapeHtml(f.desc)}</div>
+      <div class="desc">${escapeHtml(g(f.desc))}</div>
 
       <div class="persona">🏅 Титул: ${escapeHtml(S.personaTitle || 'Учёный')}</div>
 

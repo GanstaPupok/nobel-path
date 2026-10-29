@@ -1,4 +1,5 @@
 import { SAVE_KEY, SAVE_VERSION } from './config.js';
+import { g } from './text.js';
 
 const LEGACY_KEY = 'nobel_path_legacy';
 
@@ -176,6 +177,6 @@ export function newLife() {
 
 export function addLog(msg) {
   if (!S) return;
-  S.log.unshift({ age: S.age, msg });
+  S.log.unshift({ age: S.age, msg: g(msg) });
   if (S.log.length > 80) S.log.pop();
 }
