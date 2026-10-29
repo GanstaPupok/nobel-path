@@ -2,6 +2,7 @@ import { S, addLog, saveState, Legacy, saveLegacy } from './state.js';
 import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { NOBEL } from './config.js';
+import { chronicle } from './chronicle.js';
 
 export const FINALS = {
   nobel: { title: '🥇 Нобелевский лауреат!', desc: 'Ты достиг вершин науки. Твоё имя в учебниках.', color: 'var(--gold)' },
@@ -28,6 +29,7 @@ export function checkFinal() {
   else S.final = 'teacher';
 
   S.finalReached = true;
+  chronicle('🏁', FINALS[S.final] ? FINALS[S.final].title : 'Финал жизни');
   if (S.final === 'nobel') addAchievement('nobel');
 
   S.personaTitle = pickPersona();
@@ -69,7 +71,7 @@ function pickPersona() {
   const rival = a.rival;
 
   if (mentor && mentor.stage === 'legacy' && fam && fam.stage === 'legacy') return 'Старейшина науки';
-  if (love && love.stage === 'married' && fam && fam.stage === 'legacy') return 'Семейный профессор';
+  if (love && love.stage === 'married' && fam && fam.stage === 'legacy') return 'Профессор с семьёй';
   if (love && love.stage === 'married' && S.money > 5000000) return 'Профессор с капиталом';
   if (love && love.stage === 'divorced' && S.discoveries >= 4) return 'Жизнь в науке';
   if (love && love.stage === 'divorced') return 'Человек после развода';

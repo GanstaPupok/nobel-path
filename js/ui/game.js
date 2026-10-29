@@ -1,6 +1,6 @@
 import { S, newLife } from '../state.js';
-import { SKILLS, SKILL_NAMES, SKILL_ICONS, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS, ACHIEVEMENTS, GATES, NOBEL, PROJECTS } from '../config.js';
-import { escapeHtml, formatMoney, clamp } from '../utils.js';
+import { SKILLS, SKILL_NAMES, SKILL_ICONS, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS, ACHIEVEMENTS, GATES, NOBEL, PROJECTS, TRACKS } from '../config.js';
+import { escapeHtml, formatMoney, clamp, yearsWord } from '../utils.js';
 import { getArcCards } from '../arcs.js';
 import { getActiveQuests, questProgress } from '../quests.js';
 import { projectStatus } from '../project.js';
@@ -104,14 +104,15 @@ export function renderGame(app) {
       <button id="themeBtn" title="Тема">${getTheme() === 'dark' ? '🌙' : '☀️'}</button>
       <button id="treeBtn" class="badge-btn ${S.skillPoints > 0 ? 'has-points' : ''}" title="Дерево навыков">🌳 ${S.skillPoints}</button>
       <button id="achBtn" class="badge-btn" title="Достижения">🏅 ${S.achievements.length}</button>
+      <button id="chronBtn" class="badge-btn" title="Хроника жизни">📜 ${(S.chronicle || []).length}</button>
       <button id="resetBtn" title="Начать заново">🔄</button>
     </div>
 
     <div class="hero">
       <div class="avatar">${getAvatar()}</div>
       <div class="hero-info">
-        <div class="name">${escapeHtml(S.name)}, ${S.age} лет</div>
-        <div class="role">${escapeHtml(S.position)}${S.spec ? ' · ' + SPEC_NAMES[S.spec] : ''}</div>
+        <div class="name">${escapeHtml(S.name)}, ${yearsWord(S.age)}</div>
+        <div class="role">${escapeHtml(S.position)}${S.spec ? ' · ' + SPEC_NAMES[S.spec] : ''}${S.track && TRACKS[S.track] ? ' · ' + TRACKS[S.track].short : ''}</div>
         <div class="stage"><span>Этап: ${STAGES[S.stage]?.name || '—'}</span><span class="pips">${pips}</span></div>
         <div class="goal">${getGoal()}</div>
         ${bs ? `<div class="bs-tag">${bs.icon} ${bs.title}</div>` : ''}
@@ -200,6 +201,10 @@ export function renderGame(app) {
   };
   document.getElementById('achBtn').onclick = () => {
     S.pendingModal = { isAchievements: true, title: '🏅 Достижения', desc: `Открыто ${S.achievements.length} из ${Object.keys(ACHIEVEMENTS).length}` };
+    render();
+  };
+  document.getElementById('chronBtn').onclick = () => {
+    S.pendingModal = { isChronicle: true, title: '📜 Хроника жизни' };
     render();
   };
   document.getElementById('resetBtn').onclick = () => {

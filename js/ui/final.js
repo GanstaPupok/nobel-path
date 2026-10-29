@@ -3,6 +3,7 @@ import { ACHIEVEMENTS, BACKSTORIES } from '../config.js';
 import { FINALS } from '../finals.js';
 import { escapeHtml, formatMoney } from '../utils.js';
 import { arcSummary } from '../arcs.js';
+import { buildEpilogue } from '../epilogue.js';
 import { getAvatar, statHTML } from './game.js';
 import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
@@ -13,6 +14,7 @@ export function renderFinal(app) {
   const f = FINALS[S.final] || FINALS.teacher;
   const bs = S.backstory ? BACKSTORIES[S.backstory] : null;
   const life = arcSummary();
+  const epilogue = buildEpilogue();
   const badges = S.achievements
     .map(id => ACHIEVEMENTS[id])
     .filter(Boolean)
@@ -31,6 +33,11 @@ export function renderFinal(app) {
       <div class="desc">${escapeHtml(g(f.desc))}</div>
 
       <div class="persona">🏅 Титул: ${escapeHtml(S.personaTitle || 'Учёный')}</div>
+
+      ${epilogue.length ? `<div class="epilogue">
+        <h3>Эпилог</h3>
+        ${epilogue.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+      </div>` : ''}
 
       ${life.length ? `<div class="final-life">
         <h3>Жизнь вне науки</h3>

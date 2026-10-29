@@ -42,6 +42,8 @@ export function freshState() {
     arcs: { love: null, rival: null, family: null, mentor: null, friend: null, hater: null, coauthor: null, hobby: null },
     rareSeen: [],
     milestones: [],
+    chronicle: [],
+    track: null,
     project: null,
     eventsThisYear: 0,
     yearCount: 0,
@@ -81,6 +83,8 @@ function migrate(raw) {
   s.eventsThisYear = Number.isFinite(s.eventsThisYear) ? s.eventsThisYear : 0;
   if (s.project && typeof s.project !== 'object') s.project = null;
   s.milestones = Array.isArray(s.milestones) ? s.milestones : [];
+  s.chronicle = Array.isArray(s.chronicle) ? s.chronicle : [];
+  if (s.track && typeof s.track !== 'string') s.track = null;
   s.achievements = Array.isArray(s.achievements) ? s.achievements : [];
   s.log = Array.isArray(s.log) ? s.log : [];
   s.quests = Array.isArray(s.quests) ? s.quests : [];

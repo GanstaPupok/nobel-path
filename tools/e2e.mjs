@@ -267,6 +267,11 @@ await evalJs(`(() => {
     mentor: { name: 'профессор Лихачёв', stage: 'supported', years: 2, bond: 60 },
     friend: null, hater: null, coauthor: null, hobby: null
   };
+  raw.chronicle = [
+    { age: 33, icon: '💥', text: 'Открытие: «Стабильный кубит»' },
+    { age: 30, icon: '🧭', text: 'Карьерный путь: Исследователь' }
+  ];
+  raw.track = 'science';
   localStorage.setItem('nobel_path_v6', JSON.stringify(raw));
 })()`);
 await evalJs(`location.reload()`);
@@ -278,6 +283,17 @@ check('действия разложены по вкладкам', await evalJs(
   `${await evalJs(`document.querySelectorAll('.action-tab').length`)} вкладок`);
 check('карточки арок отношений видны', await evalJs(`document.querySelectorAll('.arc-card').length >= 3`),
   `${await evalJs(`document.querySelectorAll('.arc-card').length`)} карточек`);
+
+// хроника жизни
+const chronItems = await evalJs(`(() => {
+  const b = document.getElementById('chronBtn');
+  if (!b) return 0;
+  b.click();
+  return document.querySelectorAll('.chron-item').length;
+})()`);
+check('хроника жизни открывается', chronItems >= 2, `${chronItems} записей`);
+await click('#closeChron');
+await sleep(200);
 
 // вкладка «Жизнь»: действие с партнёром повышает чувства
 await evalJs(`(() => {
@@ -324,6 +340,8 @@ await click('.end-year');
 await sleep(700);
 check('финальный экран показан', await evalJs(`!!document.querySelector('.final')`),
   await evalJs(`document.querySelector('.final h2')?.textContent || 'нет'`));
+check('эпилог рассказывает историю', await evalJs(`document.querySelectorAll('.epilogue p').length >= 3`),
+  `${await evalJs(`document.querySelectorAll('.epilogue p').length`)} абзацев`);
 check('финал показывает наследие', await evalJs(`/Наследи/.test(document.querySelector('.final')?.textContent||'')`));
 const legacyAfter = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}')`);
 check('наследие начислено за жизнь', (legacyAfter.points || 0) > 350, `${legacyAfter.points} ОН`);

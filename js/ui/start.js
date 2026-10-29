@@ -6,6 +6,7 @@ import { renderBonusTags, applyBackstory } from '../backstory.js';
 import { rollDailyLife } from '../daily.js';
 import { clamp } from '../utils.js';
 import { render } from './render.js';
+import { chronicle } from '../chronicle.js';
 
 export function renderStart(app) {
   app.innerHTML = `
@@ -145,6 +146,7 @@ export function renderStart(app) {
     S.avatarSeed = Math.random();
     S.started = true;
     addLog(`Ты родился! Имя: ${S.name}. Предыстория: ${BACKSTORIES[chosenBs].title}.`);
+    chronicle('👶', `Рождение: ${BACKSTORIES[chosenBs].title}`);
     const perks = Object.keys(Legacy.upgrades || {}).length;
     if (perks > 0) addLog('🌀 Наследие предков помогло тебе на старте.');
     rollDailyLife();

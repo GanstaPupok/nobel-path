@@ -64,6 +64,7 @@ export const arcEvents = [
       { t: '💍 Сделать предложение', f: (ctx) => {
         if (ctx.money < 20000) { ctx.log('Денег нет — отложил.'); ctx.sound('fail'); return; }
         ctx.money -= 20000; ctx.advance('love', 'married', { years: 0 });
+        ctx.chronicle('💍', 'Свадьба');
         ctx.bump('love', 'love', 10);
         ctx.ach('married'); ctx.ach('arc_love');
         ctx.log('💍 Вы поженились!'); ctx.sound('levelup');
@@ -100,6 +101,7 @@ export const arcEvents = [
       } },
       { t: '💔 Развестись', f: (ctx) => {
         ctx.advance('love', 'divorced'); ctx.money = Math.floor(ctx.money * 0.6); ctx.stress += 15;
+        ctx.chronicle('💔', 'Развод');
         ctx.log('Развод. Половина денег и полгода пустоты.'); ctx.sound('fail');
       } }
     ]
@@ -138,6 +140,7 @@ export const arcEvents = [
         const child = pick(CHILDREN);
         ctx.setArc('family', { stage: 'kid', years: 0, childName: child.name, childGender: child.g, bond: 65 });
         ctx.money = Math.max(0, ctx.money - 15000); ctx.stress += 5;
+        ctx.chronicle('👶', child.g === 'f' ? `Родилась ${child.name}` : `Родился ${child.name}`);
         ctx.ach('parent'); ctx.ach('parent_arc');
         ctx.log(child.g === 'f' ? `👶 Родилась ${child.name}!` : `👶 Родился ${child.name}!`);
         ctx.sound('levelup');
@@ -270,6 +273,7 @@ export const arcEvents = [
       { t: '🎤 Принять вызов', f: (ctx) => {
         const power = ctx.int + ctx.rep + ctx.charm;
         ctx.advance('rival', 'duel');
+        ctx.chronicle('⚔️', 'Публичная дуэль с Виктором');
         if (power > 180) { ctx.rep = Math.min(100, ctx.rep + 15); ctx.ach('arc_rival'); ctx.log('Ты разнёс его аргументы в пух и прах.'); ctx.sound('levelup'); }
         else { ctx.rep = Math.max(0, ctx.rep - 8); ctx.log('Зал был не на твоей стороне.'); ctx.sound('fail'); }
         ctx.stress += 10;
@@ -372,6 +376,7 @@ export const arcEvents = [
     opts: [
       { t: '🔑 Принять лабораторию', f: (ctx) => {
         ctx.advance('mentor', 'legacy'); ctx.influence += 10; ctx.rep = Math.min(100, ctx.rep + 15);
+        ctx.chronicle('🎓', 'Лаборатория наставника перешла к тебе');
         ctx.ach('mentor'); ctx.log('Ты продолжил дело наставника. Лаборатория теперь твоя.'); ctx.sound('levelup');
       } },
       { t: '📚 Передать школе его имя', f: (ctx) => {

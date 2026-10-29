@@ -1,5 +1,5 @@
 import { S } from './state.js';
-import { clamp } from './utils.js';
+import { clamp, yearsWord } from './utils.js';
 
 // Черты партнёра дают маленький пассивный бонус каждый год.
 export const PARTNER_TRAITS = {
@@ -61,9 +61,9 @@ export function getArcCards() {
     const p = a.love.partner || (a.love.partnerName ? { name: a.love.partnerName, icon: '💞' } : null);
     const who = p ? `${p.icon} ${p.name}` : 'любимый человек';
     if (a.love.stage === 'dating') {
-      cards.push({ icon: '💞', color: 'var(--pink)', text: `Встречаешься: ${who} · ${a.love.years || 0} г. · чувства ${Math.round(a.love.love || 0)}/100` });
+      cards.push({ icon: '💞', color: 'var(--pink)', text: `Встречаешься: ${who} · ${yearsWord(a.love.years || 0)} · чувства ${Math.round(a.love.love || 0)}/100` });
     } else if (a.love.stage === 'married') {
-      cards.push({ icon: '💍', color: 'var(--gold)', text: `Брак: ${who} · ${a.love.years || 0} лет ${heartBar(a.love.love)}` });
+      cards.push({ icon: '💍', color: 'var(--gold)', text: `Брак: ${who} · ${yearsWord(a.love.years || 0)} ${heartBar(a.love.love)}` });
     } else if (a.love.stage === 'divorced') {
       cards.push({ icon: '💔', color: 'var(--red)', text: 'Развод. Бывшая семья осталась в прошлом.' });
     }

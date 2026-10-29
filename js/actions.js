@@ -5,6 +5,7 @@ import { clamp } from './utils.js';
 import { SKILLS, SALARY, POSITION_LADDER, PROJECTS } from './config.js';
 import { getGlobalModifier } from './world.js';
 import { addSkillPoint } from './skills.js';
+import { chronicle } from './chronicle.js';
 import { currentTier, addProjectProgress, progressPerAction, startProjectForSpec, projectDef } from './project.js';
 
 function rndSkill() { return SKILLS[Math.floor(Math.random() * SKILLS.length)]; }
@@ -209,7 +210,8 @@ export function getActions() {
 
   // ============ КАРЬЕРА ============
   if (S.stage === 'career') {
-    const salary = SALARY[S.position] || 8000;
+    const trackSalary = S.track === 'industry' ? 1.3 : 1;
+    const salary = Math.round((SALARY[S.position] || 8000) * trackSalary);
     add('💼 Работать', `Деньги +${salary} ₽, стресс +8`, 1, () => {
       const earned = Math.round(salary * getGlobalModifier('salary'));
       S.money += earned; S.stress = clamp(S.stress + 8, 0, 100);
@@ -286,10 +288,11 @@ export function getActions() {
       S.stress = clamp(S.stress + 5, 0, 100);
     }, '', { req: S.rep >= 55 && S.publications >= 3, reqText: 'нужно 55 репутации и 3 публикации', group: 'career' });
 
-    add('🎓 Читать лекции', 'Репутация +4, харизма +2', 1, () => {
-      S.rep = clamp(S.rep + 4, 0, 100); S.charm += 2; S.stress = clamp(S.stress + 5, 0, 100);
+    const lectureRep = S.track === 'teach' ? 8 : 4;
+    add('🎓 Читать лекции', `Репутация +${lectureRep}, харизма +2`, 1, () => {
+      S.rep = clamp(S.rep + lectureRep, 0, 100); S.charm += 2; S.stress = clamp(S.stress + 5, 0, 100);
       S.flags.lectured = true; addAchievement('lecturer');
-      addLog('Читал лекции студентам.'); playSound('click');
+      addLog(`Читал лекции студентам. Репутация +${lectureRep}.`); playSound('click');
     }, '', { group: 'career' });
 
     add('🎤 Публичная лекция', 'Деньги +8000, репутация +4, стресс −5', 1, () => {
@@ -306,7 +309,7 @@ export function getActions() {
     add('💼 Консалтинг', 'Деньги +30 000, репутация −3', 1, () => {
       S.money += 30000; S.rep = clamp(S.rep - 3, 0, 100);
       addLog('💼 Провёл платный консалтинг.'); playSound('coin');
-    }, '', { req: S.int >= 65, reqText: 'нужно 65 интеллекта', group: 'career' });
+    }, '', { req: S.int >= (S.track === 'industry' ? 40 : 65), reqText: S.track === 'industry' ? 'нужно 40 интеллекта' : 'нужно 65 интеллекта', group: 'career' });
 
     add('🏛️ Плести интриги', 'Влияние +2, враги +1', 1, () => {
       S.influence += 2; S.enemies += 1; S.stress = clamp(S.stress + 5, 0, 100);
@@ -327,7 +330,7 @@ export function getActions() {
 
     const step = POSITION_LADDER.find(p => p.from === S.position);
     add('⬆️ Заявка на повышение',
-      step ? `Нужно: репутация ${step.rep}, влияние ${step.influence}` : 'Ты уже на вершине',
+      step ? `Нужно: репутация ${step.rep}, влияние ${Math.ceil(step.influence * (S.track === 'admin' ? 0.8 : 1))}` : 'Ты уже на вершине',
       1, () => {
         const st = POSITION_LADDER.find(p => p.from === S.position);
         if (!st) { addLog('Ты уже на вершине карьеры.'); return; }
@@ -336,13 +339,15 @@ export function getActions() {
           addLog('❌ Враги подставили тебя на комиссии!');
           S.stress = clamp(S.stress + 15, 0, 100); playSound('fail'); return;
         }
-        if (S.rep >= st.rep && S.influence >= st.influence) {
+        const needInf = Math.ceil(st.influence * (S.track === 'admin' ? 0.8 : 1));
+        if (S.rep >= st.rep && S.influence >= needInf) {
           S.position = st.to;
+          chronicle('⬆️', `Повышение: ${st.to}`);
           addLog(`🎉 Повышение! Теперь ты ${st.to}.`);
           if (st.to === 'директор НИИ') addAchievement('director');
           playSound('levelup');
         } else {
-          addLog(`❌ Отказ. Нужно: репутация ${st.rep} (у тебя ${S.rep}), влияние ${st.influence} (у тебя ${S.influence}).`);
+          addLog(`❌ Отказ. Нужно: репутация ${st.rep} (у тебя ${S.rep}), влияние ${needInf} (у тебя ${S.influence}).`);
           playSound('fail');
         }
         S.stress = clamp(S.stress + 5, 0, 100);

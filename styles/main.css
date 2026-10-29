@@ -501,6 +501,25 @@ button.end-year:hover:not(:disabled){filter:brightness(1.07);box-shadow:0 12px 2
 .buy-btn:disabled{background:var(--panel3);color:var(--muted);border-color:var(--border)}
 
 /* ============================================================
+   ХРОНИКА ЖИЗНИ И ЭПИЛОГ
+   ============================================================ */
+.chron-modal{max-width:640px}
+.chron-list{margin-top:12px;display:flex;flex-direction:column;gap:16px}
+.chron-group{border-left:2px solid var(--border);padding-left:12px}
+.chron-age{font-size:12px;font-weight:800;color:var(--gold);margin-bottom:6px;letter-spacing:.3px}
+.chron-item{display:flex;gap:8px;font-size:13px;line-height:1.45;color:var(--text);padding:3px 0}
+.chron-icon{width:18px;text-align:center;flex-shrink:0}
+.chron-item span:last-child{color:var(--muted)}
+
+.final .epilogue{
+  background:rgba(90,169,255,.07);border:1px solid rgba(90,169,255,.25);
+  border-radius:16px;padding:14px;margin:0 auto 16px;max-width:520px;text-align:left;
+}
+.final .epilogue h3{margin:0 0 8px;color:var(--blue);font-size:15px}
+.final .epilogue p{margin:0 0 8px;font-size:13px;line-height:1.6;color:var(--text)}
+.final .epilogue p:last-child{margin-bottom:0;color:var(--muted);font-style:italic}
+
+/* ============================================================
    АНИМАЦИИ И АДАПТИВ
    ============================================================ */
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}

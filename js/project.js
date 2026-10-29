@@ -1,8 +1,9 @@
 import { S, addLog } from './state.js';
-import { PROJECTS, PROJECT_PROGRESS } from './config.js';
+import { PROJECTS, PROJECT_PROGRESS, TRACKS } from './config.js';
 import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { clamp } from './utils.js';
+import { chronicle } from './chronicle.js';
 
 /** Описание текущего проекта или null. */
 export function projectDef() {
@@ -50,7 +51,9 @@ export function addProjectProgress(amount) {
   if (!def || !tier) return [];
 
   const messages = [];
-  S.project.progress = Math.max(0, S.project.progress + amount);
+  const mult = S.track && TRACKS[S.track] ? TRACKS[S.track].projectMult : 1;
+  const delta = amount > 0 ? Math.round(amount * mult) : amount;
+  S.project.progress = Math.max(0, S.project.progress + delta);
 
   while (S.project.tier < def.tiers.length) {
     const t = def.tiers[S.project.tier];
@@ -61,10 +64,12 @@ export function addProjectProgress(amount) {
     S.discoveries++;
     S.rep = clamp(S.rep + t.rep, 0, 100);
     S.money += t.money;
+    chronicle('💥', `Открытие: «${t.name}»`);
     messages.push(`💥 Открытие! «${t.name}» — репутация +${t.rep}, ${t.money} ₽`);
 
     if (S.project.tier >= def.tiers.length) {
       S.flags.projectDone = true;
+      chronicle('🚀', `Тема «${def.title}» закрыта целиком`);
       S.rep = clamp(S.rep + 10, 0, 100);
       addAchievement('project_done');
       messages.push(`🚀 Тема «${def.title}» закрыта целиком. Ты в учебниках.`);

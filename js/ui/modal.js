@@ -1,10 +1,11 @@
 import { S, saveState } from '../state.js';
-import { escapeHtml } from '../utils.js';
+import { escapeHtml, yearsWord } from '../utils.js';
 import { render } from './render.js';
 import { playSound } from '../audio.js';
 import { SKILL_TREE, ACHIEVEMENTS } from '../config.js';
 import { buyPerk, canBuyPerk } from '../skills.js';
 import { g } from '../text.js';
+import { chronicleByAge, chronCount } from '../chronicle.js';
 
 export function renderModal(app) {
   const m = S.pendingModal;
@@ -12,6 +13,7 @@ export function renderModal(app) {
 
   if (m.isSkillTree) return renderSkillTree(app, m);
   if (m.isAchievements) return renderAchievements(app, m);
+  if (m.isChronicle) return renderChronicle(app, m);
 
   app.innerHTML = `
     <div class="modal-bg">
@@ -97,6 +99,34 @@ function renderAchievements(app, m) {
   `).join('');
 
   document.getElementById('closeAch').onclick = () => {
+    S.pendingModal = null;
+    saveState();
+    render();
+  };
+}
+
+function renderChronicle(app, m) {
+  const groups = chronicleByAge();
+  app.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal chron-modal">
+        <h2>${escapeHtml(m.title)}</h2>
+        <p>${groups.length
+          ? `Записей: ${chronCount()}. Здесь всё, чем запомнилась жизнь.`
+          : 'Пока пусто — проживи несколько лет, и здесь появятся важные моменты.'}</p>
+        <div class="chron-list">
+          ${groups.map(gr => `
+            <div class="chron-group">
+              <div class="chron-age">${yearsWord(gr.age)}</div>
+              ${gr.items.map(e => `<div class="chron-item"><span class="chron-icon">${e.icon}</span><span>${escapeHtml(e.text)}</span></div>`).join('')}
+            </div>
+          `).join('')}
+        </div>
+        <button class="modal-close" id="closeChron">Закрыть</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('closeChron').onclick = () => {
     S.pendingModal = null;
     saveState();
     render();

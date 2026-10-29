@@ -1,6 +1,7 @@
 // Ключевые моменты жизни. Срабатывают один раз в указанном возрасте,
 // показываются как события с заголовком и дают настоящий выбор.
 // Эффекты намеренно заметные — это вехи, а не рядовые события.
+import { chronicle } from '../chronicle.js';
 
 export const MILESTONES = [
   {
@@ -108,6 +109,7 @@ export function checkMilestones(S) {
   const m = MILESTONES.find(x => x.age === S.age && !S.milestones.includes(x.id));
   if (!m) return null;
   S.milestones.push(m.id);
+  chronicle('🎬', m.title);
   return {
     milestone: true,
     title: `🎬 ${m.title}`,

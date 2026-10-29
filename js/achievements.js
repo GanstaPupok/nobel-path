@@ -2,6 +2,7 @@ import { ACHIEVEMENTS } from './config.js';
 import { S, addLog, saveState } from './state.js';
 import { playSound } from './audio.js';
 import { addSkillPoint } from './skills.js';
+import { chronicle } from './chronicle.js';
 
 export function addAchievement(id) {
   if (!S || !S.achievements) return;
@@ -9,6 +10,7 @@ export function addAchievement(id) {
   const a = ACHIEVEMENTS[id];
   if (!a) return; // неизвестный id — молча игнорируем, чтобы не ломать сохранение
   S.achievements.push(id);
+  chronicle(a.icon, a.name, 'achievement');
   showToast(`${a.icon} Достижение: ${a.name}`);
   playSound('achievement');
   addLog(`🏅 ${a.name}`);

@@ -51,7 +51,7 @@ const { applyBackstory } = await import(BASE + 'backstory.js');
 const { rollEvent, makeCtx } = await import(BASE + 'events/engine.js');
 const { getAvailableTreeBranch, applyTreeChoice } = await import(BASE + 'tree.js');
 const { currentTier, projectStatus } = await import(BASE + 'project.js');
-const { GATES, RENT } = await import(BASE + 'config.js');
+const { GATES, RENT, NOBEL } = await import(BASE + 'config.js');
 const { rentForAge } = await import(BASE + 'year.js');
 
 const S = () => stateMod.S;
@@ -110,11 +110,21 @@ function smartPick(actions) {
   // career
   if (!s.project) return byName('Выбрать научную тему') || usable[0];
   const tier = currentTier();
+  // 1. Тянуть проект до конца
   if (tier && s.money >= tier.cost && !s.flags.projectDone) return byName('Работать над проектом');
+  // 2. Добрать открытия для Нобеля
+  if (s.discoveries < NOBEL.discoveries && s.money >= 15000) {
+    const big = byName('Big Science');
+    if (big && !big.disabled) return big;
+  }
+  // 3. Публикации и интеллект до нобелевских порогов
+  if (s.publications < NOBEL.publications || s.rep < NOBEL.rep) {
+    const pub = byName('Опубликовать статью');
+    if (pub && !pub.disabled) return pub;
+  }
+  if (s.int < NOBEL.int) return byName('Читать литературу');
+  // 4. Деньги и карьера
   if (s.money < 20000) return byName('Работать');
-  if (s.rep < 60) return byName('Опубликовать статью');
-  if (s.influence < 30) return byName('Наладить связи');
-  if (s.int < 90) return byName('Читать литературу');
   const promo = byName('Заявка на повышение');
   if (promo && !promo.disabled) return promo;
   if (tier && s.money >= tier.cost) return byName('Работать над проектом');
@@ -127,6 +137,20 @@ function runLife({ policy = 'smart', reloads = false } = {}) {
   const s = S();
   s.name = 'Тест'; s.started = true; s.stage = 'child'; s.backstory = 'teacher';
   applyBackstory();
+
+  /** Применяет висящую модалку: ветку, специализацию или тему проекта. */
+  function resolveModal() {
+    const modal = S().pendingModal;
+    if (!modal || !modal.opts) return;
+    let opt = null;
+    // «умный» игрок осознанно выбирает исследовательскую ветку
+    if (policy === 'smart' && /Карьерный путь/.test(modal.title || '')) {
+      opt = modal.opts.find(o => /Исследователь/.test(o.title));
+    }
+    if (!opt) opt = modal.opts[(Math.random() * modal.opts.length) | 0];
+    opt.f();
+    S().pendingModal = null;
+  }
 
   let guard = 0;
   const seen = new Set(['child']);
@@ -147,12 +171,8 @@ function runLife({ policy = 'smart', reloads = false } = {}) {
         usedActions.add(pick.name);
       }
 
-      // Модалки (выбор темы, специализация) — выбираем первый вариант
-      if (S().pendingModal && S().pendingModal.opts) {
-        const opt = S().pendingModal.opts[(Math.random() * S().pendingModal.opts.length) | 0];
-        opt.f();
-        S().pendingModal = null;
-      }
+      // Модалки (карьерная ветка, тема, специализация)
+      resolveModal();
 
       if (Math.random() < 0.3 && !S().pendingEvent) {
         const ev = rollEvent();
@@ -181,10 +201,10 @@ function runLife({ policy = 'smart', reloads = false } = {}) {
         S().pendingEvent = null;
         eventsSeen++;
       }
-      S().pendingModal = null;
+      // модалки, назначенные концом года (специализация, карьерная ветка)
+      resolveModal();
       seen.add(S().stage);
       assertFinite('конец года');
-      S().pendingModal = null;
       S().pendingEvent = null;
     }
   } catch (e) {

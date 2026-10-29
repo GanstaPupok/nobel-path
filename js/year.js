@@ -8,10 +8,11 @@ import { tickQuests, maybeAddQuest } from './quests.js';
 import { checkTreeConsequences } from './tree.js';
 import { checkGlobalEvents, getGlobalModifier } from './world.js';
 import { checkThresholds, addAchievement } from './achievements.js';
-import { GATES, RENT, ENERGY } from './config.js';
+import { GATES, RENT, ENERGY, TRACKS } from './config.js';
 import { checkMilestones } from './events/milestones.js';
 import { rollEvent } from './events/engine.js';
 import { startProjectForSpec } from './project.js';
+import { chronicle } from './chronicle.js';
 
 export function rentForAge(age) {
   const row = RENT.find(r => age <= r.maxAge);
@@ -39,6 +40,9 @@ export function endYear() {
     addLog(`⚠️ Не хватило на жильё (нужно ${rent} ₽). Стресс +15.`);
     playSound('fail');
   }
+
+  // Пассивный бонус карьерной ветки
+  if (S.track === 'admin') S.influence += 1;
 
   // Естественное восстановление: в норме стресс падает на 6 в год
   S.stress = clamp(S.stress + Math.round(4 * getGlobalModifier('stress')) - 10, 0, 100);
@@ -129,6 +133,7 @@ export function advanceStage() {
   if (S.stage === 'child' && S.age >= GATES.uni.age) {
     if (S.int >= GATES.uni.int) {
       S.stage = 'uni'; S.position = 'студент';
+      chronicle('🎓', 'Поступил в вуз');
       addLog('🎓 Ты поступил в вуз!');
       playSound('levelup');
       S.pendingModal = {
@@ -149,6 +154,7 @@ export function advanceStage() {
   if (S.stage === 'uni' && S.age >= GATES.phd.age) {
     if (S.int >= GATES.phd.int && S.publications >= GATES.phd.publications) {
       S.stage = 'phd'; S.position = 'аспирант';
+      chronicle('🎓', 'Поступил в аспирантуру');
       addLog('🎓 Ты поступил в аспирантуру!');
       addAchievement('first_pub');
       playSound('levelup');
@@ -166,6 +172,7 @@ export function advanceStage() {
     S.stage = 'career';
     if (S.discoveries >= GATES.career.discoveries) {
       S.position = 'м.н.с.';
+      chronicle('🎓', 'Защитил диссертацию');
       addLog('🎓 Защита прошла! Ты младший научный сотрудник.');
       playSound('levelup');
     } else {
@@ -181,4 +188,24 @@ export function advanceStage() {
     if (S.position === 'школьник' || S.position === 'студент') S.position = 'лаборант';
     addLog('🕐 Жизнь заставила начать работать: ты лаборант.');
   }
+
+  // Выбор карьерной ветки — один раз, при входе в карьеру
+  if (S.stage === 'career' && !S.track && !S.pendingModal) chooseTrack();
+}
+
+function chooseTrack() {
+  S.pendingModal = {
+    title: '🧭 Карьерный путь',
+    desc: 'Чем ты будешь заниматься дальше? Ветку можно выбрать только один раз.',
+    opts: Object.values(TRACKS).map(t => ({
+      title: `${t.icon} ${t.title}`,
+      desc: `${t.desc} Бонус: ${t.effect}.`,
+      f: () => {
+        S.track = t.id;
+        chronicle('🧭', `Карьерный путь: ${t.title}`);
+        addLog(`🧭 Ты выбрал путь: ${t.title}.`);
+        playSound('levelup');
+      }
+    }))
+  };
 }

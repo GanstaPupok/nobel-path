@@ -10,3 +10,21 @@ export function escapeHtml(s){
 export function formatMoney(n){
   return Number(n).toLocaleString('ru')+' ₽';
 }
+
+/**
+ * Склонение существительных после числительных.
+ * plural(3, ['год', 'года', 'лет']) → «года».
+ */
+export function plural(n, forms) {
+  const abs = Math.abs(Number(n)) % 100;
+  const last = abs % 10;
+  if (abs > 10 && abs < 20) return forms[2];
+  if (last > 1 && last < 5) return forms[1];
+  if (last === 1) return forms[0];
+  return forms[2];
+}
+
+/** «34 года», «21 год», «11 лет». */
+export function yearsWord(n) {
+  return `${n} ${plural(n, ['год', 'года', 'лет'])}`;
+}
