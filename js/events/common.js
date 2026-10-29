@@ -97,7 +97,7 @@ export const commonEvents = [
     text:'Ты получил грант на стажировку за границей!',
     when:{minAge:23,maxAge:40,stage:['phd','career']},
     opts:[
-      {t:'✈️ Поехать',f:(ctx)=>{ctx.int+=10;ctx.rep+=10;ctx.charm+=3;ctx.log('✈️ За границей!');ctx.ach('abroad');ctx.sound('success');}},
+      {t:'✈️ Поехать',f:(ctx)=>{ctx.int+=10;ctx.rep+=10;ctx.charm+=3;ctx.flags.abroad=true;ctx.log('✈️ За границей!');ctx.ach('abroad');ctx.sound('success');}},
       {t:'🚶 Остаться',f:(ctx)=>{ctx.log('Остался.');ctx.sound('click');}}
     ]
   },

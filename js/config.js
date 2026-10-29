@@ -1,4 +1,5 @@
 export const SAVE_KEY = 'nobel_path_v6';
+export const SAVE_VERSION = 7;
 export const THEME_KEY = 'nobel_theme';
 export const SOUND_KEY = 'nobel_sound';
 
@@ -16,6 +17,98 @@ export const STAGES = {
 };
 
 export const SPEC_NAMES = {phys:'Физик',bio:'Биолог',it:'Программист'};
+
+// ============================================================
+// ЭКОНОМИКА И КАРЬЕРНАЯ ЛЕСТНИЦА
+// ============================================================
+// Зарплата за одно действие «Работать» на текущей должности.
+export const SALARY = {
+  'школьник': 0,
+  'студент': 0,
+  'аспирант': 0,
+  'лаборант': 9000,
+  'инженер': 11000,
+  'м.н.с.': 14000,
+  'н.с.': 17000,
+  'с.н.с.': 21000,
+  'зав. лаб.': 27000,
+  'зам. директора': 33000,
+  'директор НИИ': 42000
+};
+
+// Порядок должностей и требования для повышения.
+// rep — репутация, influence — влияние, both нужны для перехода на следующий уровень.
+export const POSITION_LADDER = [
+  { from:'лаборант',       to:'м.н.с.',         rep:20, influence:0  },
+  { from:'инженер',        to:'м.н.с.',         rep:20, influence:0  },
+  { from:'м.н.с.',         to:'н.с.',           rep:40, influence:5  },
+  { from:'н.с.',           to:'с.н.с.',         rep:55, influence:10 },
+  { from:'с.н.с.',         to:'зав. лаб.',      rep:70, influence:16 },
+  { from:'зав. лаб.',      to:'зам. директора', rep:80, influence:22 },
+  { from:'зам. директора', to:'директор НИИ',   rep:90, influence:30 }
+];
+
+// Аренда/бытовые расходы в год. Дети живут с родителями — бесплатно.
+export const RENT = [
+  { maxAge: 17, sum: 0     },
+  { maxAge: 23, sum: 1500  },
+  { maxAge: 30, sum: 3000  },
+  { maxAge: 38, sum: 5000  },
+  { maxAge: 999, sum: 8000 }
+];
+
+// Пороги перехода на следующий этап жизни.
+export const GATES = {
+  uni:    { age: 17, int: 40 },
+  phd:    { age: 23, int: 60, publications: 1 },
+  career: { age: 30, discoveries: 1 }
+};
+
+// Энергия: база + бонусы за здоровье/харизму.
+export const ENERGY = { base: 3, healthBonus: 70, charmBonus: 70 };
+
+// ============================================================
+// НАУЧНЫЙ ПРОЕКТ — главная долгая цель игры
+// ============================================================
+// Игрок выбирает направление в вузе (по специализации) и ведёт его
+// через три этапа. Каждый этап — открытие, репутация и деньги.
+// Прогресс дают действия «Работать над проектом» и события-прорывы.
+export const PROJECTS = {
+  quantum: {
+    id: 'quantum', icon: '⚛️', title: 'Квантовые вычисления', spec: 'phys',
+    desc: 'Кубиты, запутанность и квантовое превосходство.',
+    tiers: [
+      { name: 'Стабильный кубит', need: 120, cost: 1000, rep: 8, money: 12000 },
+      { name: 'Квантовый алгоритм', need: 200, cost: 2500, rep: 10, money: 25000 },
+      { name: 'Квантовое превосходство', need: 300, cost: 5000, rep: 14, money: 60000 }
+    ]
+  },
+  genome: {
+    id: 'genome', icon: '🧬', title: 'Редактирование генома', spec: 'bio',
+    desc: 'CRISPR, стволовые клетки и борьба с наследственными болезнями.',
+    tiers: [
+      { name: 'Точный CRISPR', need: 110, cost: 1200, rep: 8, money: 12000 },
+      { name: 'Модель заболевания', need: 200, cost: 3000, rep: 10, money: 25000 },
+      { name: 'Терапия для человека', need: 300, cost: 6000, rep: 14, money: 60000 }
+    ]
+  },
+  ai: {
+    id: 'ai', icon: '🤖', title: 'Искусственный интеллект', spec: 'it',
+    desc: 'Нейросети, интерпретируемость и вычисления на пределе.',
+    tiers: [
+      { name: 'Работающая архитектура', need: 110, cost: 800, rep: 8, money: 12000 },
+      { name: 'Обучение без разметки', need: 200, cost: 2200, rep: 10, money: 25000 },
+      { name: 'Общий интеллект', need: 300, cost: 4500, rep: 14, money: 60000 }
+    ]
+  }
+};
+
+// Сколько прогресса проекта даёт одно действие (зависит от лучшего навыка)
+export const PROJECT_PROGRESS = { base: 22, perSkill: 6 };
+
+// Условия «нобелевского» финала — нужен завершённый проект и серьёзные показатели
+export const NOBEL = { rep: 95, int: 95, discoveries: 5, publications: 8 };
+
 
 export const BACKSTORIES = {
   worker:{
@@ -101,7 +194,13 @@ export const ACHIEVEMENTS = {
   puzzle_master:{icon:'🧩',name:'Лаборант-виртуоз'},
   defense_master:{icon:'🛡️',name:'Защитник'},
   quest_hero:{icon:'⭐',name:'Герой квестов'},
-  tree_master:{icon:'🌳',name:'Мудрец'}
+  tree_master:{icon:'🌳',name:'Мудрец'},
+  project_start:{icon:'💡',name:'Своя тема'},
+  project_done:{icon:'🚀',name:'Научный прорыв'},
+  professor:{icon:'🎓',name:'Профессор'},
+  lecturer:{icon:'🎤',name:'Лектор'},
+  patent:{icon:'🧾',name:'Изобретатель'},
+  legend:{icon:'👑',name:'Легенда'}
 };
 
 // ============================================================
@@ -161,7 +260,7 @@ export const SKILL_TREE = {
   },
   genius_pub: {
     id: 'genius_pub', icon: '📝', title: 'Скорочтение',
-    desc: 'Ты пишешь статьи в два раза быстрее.', effect: 'Написание статьи требует на 5 стресса меньше', cost: 2
+    desc: 'Ты пишешь статьи на лету.', effect: 'Статьи в аспирантуре не добавляют стресс', cost: 2
   },
   rival_master: {
     id: 'rival_master', icon: '⚔️', title: 'Интриган',

@@ -45,7 +45,7 @@
 .mg-qte-area{text-align:center;padding:20px;background:var(--panel2);border-radius:12px;margin:16px 0}
 .mg-qte-word{font-size:32px;font-weight:700;color:var(--gold);margin-bottom:8px;font-family:monospace}
 .mg-qte-hint{color:var(--muted);font-size:13px}
-.mg-qte-area button{background:linear-gradient(135deg,var(--blue),#3b82f6);font-size:18px;
+.mg-qte-area button{background:linear-gradient(135deg,var(--blue),#3b82f6);border:none;font-size:18px;
   padding:20px;margin-top:16px;width:100%;text-align:center;font-weight:700;min-height:auto}
 
 .mg-close{background:var(--panel2)!important;color:var(--muted)!important;border:1px solid var(--border)!important;
@@ -57,3 +57,8 @@
   .mg-puzzle-slot,.mg-puzzle-tile{width:44px;height:44px;font-size:18px}
   .mg-qte-word{font-size:26px}
 }
+
+/* «Найди ошибку» */
+.mg-grid-2{grid-template-columns:1fr 1fr}
+.mg-formula{text-align:center!important;font-size:18px!important;font-family:monospace!important}
+.mg-why{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5}

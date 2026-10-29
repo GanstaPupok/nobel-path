@@ -57,7 +57,7 @@ export function playQuiz(onDone){
     const good = score >= 3;
     if(good){
       S.int += 5;
-      S.rep += 2;
+      S.rep = Math.min(100, S.rep + 2);
       playSound('success');
       if(S.minigameDone.quiz===0) addAchievement('quiz_master');
     } else {

@@ -1,15 +1,15 @@
 import { S } from '../state.js';
 import { escapeHtml } from '../utils.js';
 import { makeCtx } from '../events/engine.js';
-import { render } from './render.js';
 import { afterAction } from './render.js';
 
 export function renderEvent(app){
   const e = S.pendingEvent;
+  const title = e.title || (e.rare ? '🌟 Редкое событие' : '⚡ Событие');
+
   app.innerHTML = `
-    <div class="event">
-      <h3>⚡ Событие</h3>
-      ${e.rare?'<div class="ev-meta">🌟 редкое событие</div>':''}
+    <div class="event ${e.milestone ? 'milestone' : ''}">
+      <h3>${escapeHtml(title)}</h3>
       <p>${escapeHtml(e.text)}</p>
       <div class="opts" id="eventOpts"></div>
     </div>

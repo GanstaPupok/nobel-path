@@ -1,4 +1,4 @@
-import { S, addLog, saveState } from './state.js';
+import { S, addLog } from './state.js';
 import { GLOBAL_EVENTS } from './config.js';
 import { playSound } from './audio.js';
 

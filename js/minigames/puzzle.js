@@ -31,11 +31,13 @@ export function playPuzzle(onDone){
         ${shuffled.map((p,i)=>`<div class="mg-puzzle-tile" data-idx="${i}" style="color:${TILE_COLORS[p]||'#fff'}">${p}</div>`).join('')}
       </div>
       <div class="mg-result" id="result"></div>
+      <button class="mg-close" id="giveUp">Сдаться</button>
     </div>
   `;
   document.body.appendChild(overlay);
 
   let placed = 0;
+  let finished = false;
   const slots = overlay.querySelectorAll('.mg-puzzle-slot');
   const tiles = overlay.querySelectorAll('.mg-puzzle-tile');
 
@@ -67,7 +69,11 @@ export function playPuzzle(onDone){
     };
   });
 
+  overlay.querySelector('#giveUp').onclick = () => finish(false);
+
   function finish(success){
+    if (finished) return;
+    finished = true;
     if(success){
       S.skills.chem += 3;
       S.int += 2;

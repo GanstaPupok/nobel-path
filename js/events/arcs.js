@@ -7,7 +7,8 @@ export const arcEvents = [
     opts:[
       {t:'❤️ Подойти',f:(ctx)=>{
         if(ctx.d20()>8){
-          ctx.setArc('love',{stage:'dating',years:0,partnerName:'Александра'});
+          const partner = ctx.gender === 'f' ? 'Александр' : 'Александра';
+          ctx.setArc('love',{stage:'dating',years:0,partnerName:partner});
           ctx.charm+=5;ctx.stress=Math.max(0,ctx.stress-10);
           ctx.log('❤️ Начали встречаться!');ctx.sound('success');
         } else {ctx.log('😞 Отказала.');ctx.sound('fail');}

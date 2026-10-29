@@ -4,18 +4,20 @@ import { playSound, isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { renderBonusTags, applyBackstory } from '../backstory.js';
 import { rollDailyLife } from '../daily.js';
-import { escapeHtml, clamp } from '../utils.js';
+import { clamp } from '../utils.js';
 import { render } from './render.js';
 
-export function renderStart(app){
+export function renderStart(app) {
   app.innerHTML = `
     <div class="top-bar">
-      <button id="soundBtn">${isSoundOn()?'🔊':'🔇'}</button>
-      <button id="themeBtn">${getTheme()==='dark'?'🌙':'☀️'}</button>
+      <button id="soundBtn">${isSoundOn() ? '🔊' : '🔇'}</button>
+      <button id="themeBtn">${getTheme() === 'dark' ? '🌙' : '☀️'}</button>
     </div>
     <div class="start-screen">
       <h2>👋 Новая жизнь</h2>
-      <p class="hint">Кем ты родился? Это повлияет на всю жизнь.</p>
+      <p class="hint">Кем ты родился? Это повлияет на всю жизнь.
+        ${Legacy.runs ? `<br><span class="muted small">Прожито жизней: ${Legacy.runs}</span>` : ''}
+      </p>
 
       <div class="field">
         <label>Имя</label>
@@ -35,34 +37,33 @@ export function renderStart(app){
         <div class="backstory-grid" id="bsGrid"></div>
       </div>
 
-      <!-- БЛОК НАСЛЕДИЯ -->
-      <div class="legacy-section" style="border:1px solid var(--purple); border-radius:12px; padding:12px; background:rgba(163,113,247,0.05);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3 style="margin:0; color:var(--purple); font-size:16px;">🌀 Наследие</h3>
-          <span style="font-weight:700; color:var(--gold);">${Legacy.points} ОН</span>
+      <div class="legacy-section">
+        <div class="legacy-head">
+          <h3>🌀 Наследие</h3>
+          <span class="legacy-points" id="legacyPoints">${Legacy.points} ОН</span>
         </div>
-        <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Потрать очки, чтобы следующая жизнь была проще.</p>
-        <div class="legacy-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="legacyGrid"></div>
+        <p class="hint small">Покупается один раз и работает во всех следующих жизнях.</p>
+        <div class="legacy-grid" id="legacyGrid"></div>
       </div>
 
       <button class="start-btn" id="startBtn" disabled>🎓 Начать путь</button>
     </div>
   `;
 
-  document.getElementById('soundBtn').onclick = ()=>{ toggleSound(); render(); };
-  document.getElementById('themeBtn').onclick = ()=>{ toggleTheme(); render(); };
+  document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
+  document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
 
   const inp = document.getElementById('inpName');
   const btn = document.getElementById('startBtn');
   const pick = document.getElementById('genderPick');
   const bsGrid = document.getElementById('bsGrid');
   const legacyGrid = document.getElementById('legacyGrid');
-  
-  let chosenGender='m';
-  let chosenBs=null;
+  const legacyPoints = document.getElementById('legacyPoints');
 
-  // Рендер карточек предысторий
-  bsGrid.innerHTML = Object.values(BACKSTORIES).map(b=>`
+  let chosenGender = 'm';
+  let chosenBs = null;
+
+  bsGrid.innerHTML = Object.values(BACKSTORIES).map(b => `
     <div class="backstory-card" data-bs="${b.id}">
       <div class="bs-head">
         <div class="bs-icon">${b.icon}</div>
@@ -73,81 +74,79 @@ export function renderStart(app){
     </div>
   `).join('');
 
-  bsGrid.addEventListener('click', e=>{
+  bsGrid.addEventListener('click', e => {
     const card = e.target.closest('.backstory-card');
-    if(!card) return;
+    if (!card) return;
     playSound('click');
-    bsGrid.querySelectorAll('.backstory-card').forEach(c=>c.classList.remove('selected'));
+    bsGrid.querySelectorAll('.backstory-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     chosenBs = card.dataset.bs;
     check();
   });
 
-  // Рендер карточек наследия
-  function renderLegacy(){
-    legacyGrid.innerHTML = Object.values(LEGACY_PERKS).map(p=>{
-      const bought = S.legacyUpgrades[p.id] || 0; // Мы будем хранить купленные в S
-      const canBuy = Legacy.points >= p.cost && bought < p.maxLevel;
-      
+  // ---- Наследие ----
+  function renderLegacy() {
+    legacyGrid.innerHTML = Object.values(LEGACY_PERKS).map(p => {
+      const level = (Legacy.upgrades || {})[p.id] || 0;
+      const maxed = level >= p.maxLevel;
+      const canBuy = !maxed && Legacy.points >= p.cost;
+      const label = maxed ? 'Максимум' : `Купить: ${p.cost} ОН`;
       return `
-        <div class="legacy-card" style="background:var(--panel2); border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center;">
-          <div style="font-size:24px;">${p.icon}</div>
-          <div style="font-size:12px; font-weight:700; color:var(--gold); margin-top:4px;">${p.title} ${bought>0?`(Ур.${bought})`:''}</div>
-          <div style="font-size:10px; color:var(--muted); margin-bottom:8px;">${p.desc}</div>
-          <button class="buy-btn" data-id="${p.id}" ${canBuy?'':'disabled'} 
-                  style="padding:4px; font-size:11px; min-height:auto; text-align:center; width:100%; ${canBuy?'background:var(--purple)':'background:var(--panel3); color:#777;'}">
-            ${bought >= p.maxLevel ? 'Максимум' : `Купить: ${p.cost} ОН`}
-          </button>
+        <div class="legacy-card ${maxed ? 'maxed' : ''}">
+          <div class="legacy-icon">${p.icon}</div>
+          <div class="legacy-title">${p.title}${level > 0 ? ` <span class="lvl">ур. ${level}</span>` : ''}</div>
+          <div class="legacy-desc">${p.desc}</div>
+          <button class="buy-btn" data-id="${p.id}" ${canBuy ? '' : 'disabled'}>${label}</button>
         </div>
       `;
     }).join('');
-    
-    // Вешаем обработчики на кнопки покупки
-    document.querySelectorAll('.buy-btn').forEach(b => {
-      b.onclick = () => {
-        const perkId = b.dataset.id;
-        const perk = LEGACY_PERKS[perkId];
-        const bought = S.legacyUpgrades[perkId] || 0;
-        if(Legacy.points >= perk.cost && bought < perk.maxLevel){
-          Legacy.points -= perk.cost;
-          S.legacyUpgrades[perkId] = bought + 1;
-          saveLegacy();
-          saveState();
-          playSound('levelup');
-          render(); // Перерисовываем, чтобы обновить очки
-        }
-      };
-    });
+    legacyPoints.textContent = `${Legacy.points} ОН`;
   }
+
+  legacyGrid.addEventListener('click', e => {
+    const b = e.target.closest('.buy-btn');
+    if (!b || b.disabled) return;
+    const perk = LEGACY_PERKS[b.dataset.id];
+    if (!perk) return;
+    if (!Legacy.upgrades) Legacy.upgrades = {};
+    const level = Legacy.upgrades[perk.id] || 0;
+    if (level >= perk.maxLevel || Legacy.points < perk.cost) return;
+
+    Legacy.points -= perk.cost;
+    Legacy.upgrades[perk.id] = level + 1;
+    saveLegacy();
+    playSound('levelup');
+    renderLegacy();
+  });
+
   renderLegacy();
 
-  const check = ()=>{ btn.disabled = inp.value.trim().length<1 || !chosenBs; };
+  const check = () => { btn.disabled = inp.value.trim().length < 1 || !chosenBs; };
   inp.addEventListener('input', check);
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!btn.disabled) btn.click(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
 
-  pick.addEventListener('click', e=>{
+  pick.addEventListener('click', e => {
     const b = e.target.closest('button');
-    if(!b) return;
+    if (!b) return;
     playSound('click');
-    pick.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
+    pick.querySelectorAll('button').forEach(x => x.classList.remove('selected'));
     b.classList.add('selected');
     chosenGender = b.dataset.g;
   });
 
   check();
 
-  btn.onclick = ()=>{
-    S.name = inp.value.trim().slice(0,20) || 'Алекс';
+  btn.onclick = () => {
+    S.name = inp.value.trim().slice(0, 20) || 'Алекс';
     S.gender = chosenGender;
     S.backstory = chosenBs;
     applyBackstory();
-    applyLegacyUpgrades(); // <-- ПРИМЕНЯЕМ УЛУЧШЕНИЯ
+    applyLegacyUpgrades();
     S.avatarSeed = Math.random();
     S.started = true;
     addLog(`Ты родился! Имя: ${S.name}. Предыстория: ${BACKSTORIES[chosenBs].title}.`);
-    if (Object.keys(S.legacyUpgrades).length > 0) {
-      addLog(`🌀 Наследие предков помогло тебе на старте.`);
-    }
+    const perks = Object.keys(Legacy.upgrades || {}).length;
+    if (perks > 0) addLog('🌀 Наследие предков помогло тебе на старте.');
     rollDailyLife();
     S.dailyLifeSeen = true;
     playSound('success');
@@ -156,20 +155,22 @@ export function renderStart(app){
   };
 }
 
-// Вспомогательная функция для применения бонусов
-function applyLegacyUpgrades(){
-  for (const [id, level] of Object.entries(S.legacyUpgrades)) {
-    if (level <= 0) continue;
+// Бонусы купленного наследия применяются к новой жизни.
+function applyLegacyUpgrades() {
+  for (const [id, level] of Object.entries(Legacy.upgrades || {})) {
     const perk = LEGACY_PERKS[id];
-    if (!perk) continue;
-    
-    // Применяем эффекты в зависимости от уровня
-    for (let i = 0; i < level; i++) {
-      if (perk.effect.int) S.int += perk.effect.int;
-      if (perk.effect.charm) S.charm += perk.effect.charm;
-      if (perk.effect.health) S.health = clamp(S.health + perk.effect.health, 0, 100);
-      if (perk.effect.money) S.money += perk.effect.money;
-      if (perk.effect.energy) S.energy += perk.effect.energy;
+    if (!perk || level <= 0) continue;
+    const times = Math.min(level, perk.maxLevel);
+    for (let i = 0; i < times; i++) {
+      const e = perk.effect;
+      if (e.int) S.int += e.int;
+      if (e.charm) S.charm += e.charm;
+      if (e.health) S.health = clamp(S.health + e.health, 0, 100);
+      if (e.money) S.money += e.money;
+      if (e.energy) {
+        S.energyBonus = (S.energyBonus || 0) + e.energy;
+        S.energy += e.energy; // бонус действует уже в первом году
+      }
     }
   }
 }

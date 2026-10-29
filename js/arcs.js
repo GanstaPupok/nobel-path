@@ -1,4 +1,4 @@
-import { S, addLog } from './state.js';
+import { S } from './state.js';
 import { clamp } from './utils.js';
 
 export function tickArcs(){
