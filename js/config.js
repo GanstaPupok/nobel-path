@@ -171,4 +171,32 @@ export const SKILL_TREE = {
     id: 'stress_resist', icon: '🧘', title: 'Дзен',
     desc: 'Ты сохраняешь спокойствие в любой ситуации.', effect: '-10 к Стрессу сразу', cost: 1
   }
+  // ============================================================
+// ГЛОБАЛЬНЫЕ КРИЗИСЫ (МИРОВЫЕ СОБЫТИЯ)
+// ============================================================
+export const GLOBAL_EVENTS = {
+  funding_crisis: {
+    id: 'funding_crisis', icon: '📉', title: 'Кризис финансирования',
+    desc: 'Государство урезало бюджет на науку. Гранты дают реже, зарплаты падают.',
+    duration: 4,
+    effects: { grantMoney: 0.2, salary: 0.6 }
+  },
+  revolution: {
+    id: 'revolution', icon: '🚀', title: 'Научная революция',
+    desc: 'Прорыв в технологиях! Открытия даются легче, но конкуренция выросла.',
+    duration: 3,
+    effects: { discoveryChance: 1.5, stress: 1.5 }
+  },
+  pandemic: {
+    id: 'pandemic', icon: '🦠', title: 'Пандемия',
+    desc: 'Мир на карантине. Учёные нужны как никогда, но здоровье под угрозой.',
+    duration: 2,
+    effects: { health: 0.7, grantMoney: 2.0 }
+  },
+  brain_drain: {
+    id: 'brain_drain', icon: '✈️', title: 'Утечка мозгов',
+    desc: 'Многие учёные уехали за границу. Освободились должности, но репутация упала.',
+    duration: 5,
+    effects: { promotionChance: 1.5, rep: 0.8 }
+  }
 };
