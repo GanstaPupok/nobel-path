@@ -14,8 +14,19 @@ export function endYear(){
   S.minigamesThisYear = 0; // Сброс лимита мини-игр
   S.energy = 3 + (S.health>70?1:0) + (S.charm>70?1:0);
   
-  const rent = 2000 / getGlobalModifier('salary');
+  // Стоимость жизни растет с возрастом
+  let baseRent = 1000;
+  if (S.age > 18) baseRent = 3000;
+  if (S.age > 25) baseRent = 6000;
+  if (S.age > 35) baseRent = 10000;
+  
+  const rent = Math.floor(baseRent / getGlobalModifier('salary'));
   S.money = Math.max(0, S.money - rent);
+  
+  if (S.money === 0 && rent > 0) {
+    S.stress = clamp(S.stress + 15, 0, 100);
+    addLog('⚠️ Тебе не хватило денег на жизнь! Стресс вырос.');
+  }
   S.stress = clamp(S.stress + (5 * getGlobalModifier('stress')) - 10, 0, 100); 
   
   // Влияние пандемии
