@@ -1,50 +1,40 @@
-import { S, Legacy } from '../state.js';
-import { ACHIEVEMENTS, BACKSTORIES } from '../config.js';
-import { FINALS } from '../finals.js';
-import { escapeHtml, formatMoney } from '../utils.js';
-import { getAvatar, statHTML } from './game.js';
-import { isSoundOn, toggleSound } from '../audio.js';
-import { getTheme, toggleTheme } from '../theme.js';
-import { render } from './render.js';
+import { S, addLog, saveState, Legacy, saveLegacy } from './state.js';
+import { playSound } from './audio.js';
+import { addAchievement } from './achievements.js';
 
-export function renderFinal(app){
-  const f = FINALS[S.final];
-  const bs = S.backstory ? BACKSTORIES[S.backstory] : null;
-  app.innerHTML = `
-    <div class="top-bar">
-      <button id="soundBtn">${isSoundOn()?'🔊':'🔇'}</button>
-      <button id="themeBtn">${getTheme()==='dark'?'🌙':'☀️'}</button>
-    </div>
-    <div class="final">
-      <div style="font-size:80px;margin-bottom:16px;animation:pulse 2s ease-in-out infinite">${getAvatar()}</div>
-      <h2 style="color:${f.color}">${f.title}</h2>
-      ${bs?`<p style="color:var(--muted);font-size:13px">${bs.icon} ${bs.title}</p>`:''}
-      <div class="desc">${f.desc}</div>
-      
-      <!-- БЛОК НАСЛЕДИЯ -->
-      <div style="background:rgba(163,113,247,0.15); border:1px solid var(--purple); border-radius:12px; padding:12px; margin: 0 auto 20px; max-width: 400px;">
-        <h3 style="color:var(--purple); margin:0 0 8px; font-size:18px;">🌀 Получено Наследия: +${S.earnedLegacy || 0} ОН</h3>
-        <p style="color:var(--muted); font-size:12px; margin:0;">Всего накоплено: <b>${Legacy.points}</b> ОН. Эти очки можно потратить при следующем рождении!</p>
-      </div>
+export const FINALS = {
+  nobel:{title:'🥇 Нобелевский лауреат!',desc:'Ты достиг вершин науки. Твоё имя в учебниках.',color:'var(--gold)'},
+  director:{title:'🏛️ Директор НИИ',desc:'Ты возглавил институт.',color:'var(--blue)'},
+  famous:{title:'🌍 Всемирно известный учёный',desc:'Твои статьи цитируют по всему миру.',color:'var(--green)'},
+  business:{title:'💼 Успешный бизнесмен от науки',desc:'Ты превратил науку в капитал.',color:'var(--purple)'},
+  burnout:{title:'💔 Выгорание',desc:'Ты ушёл из науки. Здоровье важнее.',color:'var(--red)'},
+  loser:{title:'😞 Бездарь',desc:'Увы, наука тебя не приняла.',color:'var(--muted)'},
+  teacher:{title:'🧑‍🏫 Хороший преподаватель',desc:'Ты воспитал не одно поколение.',color:'var(--blue)'}
+};
 
-      <div class="summary">
-        ${statHTML('Возраст',S.age)}
-        ${statHTML('Интеллект',S.int)}
-        ${statHTML('Репутация',S.rep)}
-        ${statHTML('Публикаций',S.publications)}
-        ${statHTML('Открытий',S.discoveries)}
-        ${statHTML('Деньги',formatMoney(S.money))}
-      </div>
-      ${S.achievements.length?`
-        <h3 style="color:var(--gold);margin-bottom:8px">🏅 Достижения (${S.achievements.length})</h3>
-        <div class="ach-list">
-          ${S.achievements.map((id,i)=>`<div class="ach-badge" style="animation-delay:${i*0.06}s">${ACHIEVEMENTS[id].icon} ${ACHIEVEMENTS[id].name}</div>`).join('')}
-        </div>
-      `:''}
-      <button id="resetBtn">🔄 Начать новую жизнь</button>
-    </div>
-  `;
-  document.getElementById('soundBtn').onclick = ()=>{ toggleSound(); render(); };
-  document.getElementById('themeBtn').onclick = ()=>{ toggleTheme(); render(); };
-  document.getElementById('resetBtn').onclick = ()=>{ localStorage.removeItem('nobel_path_v6'); location.reload(); };
+export function checkFinal(){
+  S.finalReached = true;
+  if(S.rep>=90 && S.int>=90 && S.discoveries>=3){S.final='nobel';addAchievement('nobel');}
+  else if(S.position==='директор НИИ')S.final='director';
+  else if(S.publications>=5 && S.rep>=80)S.final='famous';
+  else if(S.money>=10000000)S.final='business';
+  else if(S.stress>=90)S.final='burnout';
+  else if(S.int<30 && S.publications<2)S.final='loser';
+  else S.final='teacher';
+  
+  addLog('🏁 Жизнь подошла к финалу.');
+  playSound('final');
+
+  // --- НАЧИСЛЕНИЕ НАСЛЕДИЯ ---
+  let pointsEarned = 50; // База за любое прохождение
+  pointsEarned += S.achievements.length * 10; // +10 за каждую ачивку
+  pointsEarned += S.publications * 5;
+  pointsEarned += Math.floor(S.money / 100000); // 1 очко за каждые 100к денег
+  if (S.final === 'nobel') pointsEarned += 100;
+  
+  Legacy.points += pointsEarned;
+  saveLegacy();
+  S.earnedLegacy = pointsEarned; // Запоминаем для финального экрана
+
+  saveState();
 }
