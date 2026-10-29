@@ -24,7 +24,17 @@ export function endYear(){
     if (Math.random() < 0.3) addLog('🦠 Ты переболел в пандемию.');
   }
 
-  if(S.stress > 80){ S.health = clamp(S.health - 10, 0, 100); addLog('⚠️ Высокий стресс подорвал здоровье.'); }
+  if(S.stress >= 100){
+    addLog('🔥 ВЫГОРАНИЕ! Ты не выдержал нагрузки. Пришлось взять академический отпуск на год.');
+    S.stress = 50; // Сбрасываем стресс
+    S.health = clamp(S.health - 15, 0, 100);
+    S.energy = 1; // В этом году мало энергии
+    S.money = Math.max(0, S.money - 10000); // Расходы на лечение
+    playSound('fail');
+  } else if(S.stress > 80){ 
+    S.health = clamp(S.health - 10, 0, 100); 
+    addLog('⚠️ Высокий стресс подорвал здоровье.'); 
+  }
 
   tickArcs();
   tickQuests();
