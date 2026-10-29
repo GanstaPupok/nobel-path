@@ -1,17 +1,12 @@
-import { S } from '../state.js';
-import { SKILLS, SKILL_NAMES, SPEC_NAMES, STAGES, BACKSTORIES } from '../config.js';
+import { S, saveState, addLog } from '../state.js';
+import { SKILLS, SKILL_NAMES, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS } from '../config.js';
 import { escapeHtml, formatMoney, clamp } from '../utils.js';
 import { getArcCards } from '../arcs.js';
 import { getActions } from '../actions.js';
 import { renderActions } from './render.js';
-import { playSound } from '../audio.js';
-import { isSoundOn, toggleSound } from '../audio.js';
+import { playSound, isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
-import { getAvailableTreeBranch } from '../tree.js';
-import { rollDailyLife } from '../daily.js';
-import { S, saveState, addLog } from '../state.js';
-import { SKILLS, SKILL_NAMES, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS } from '../config.js';
 
 export function getAvatar(){
   const arr = S.gender==='m' ? ['🧒','👦','🧑','👨','🧑‍🎓','🧑‍🔬','👨‍🔬','👨‍🏫','👨‍💼','👴']
@@ -55,7 +50,7 @@ export function renderGame(app){
         ${bs?`<div class="bs-tag">${bs.icon} ${bs.title}</div>`:''}
       </div>
     </div>
-    
+
     ${S.activeGlobalEvent ? `
       <div class="daily-card" style="border-color:var(--red); background:linear-gradient(135deg, rgba(248,81,73,0.15), rgba(233,69,96,0.1));">
         <div class="daily-icon">${GLOBAL_EVENTS[S.activeGlobalEvent].icon}</div>
@@ -65,7 +60,7 @@ export function renderGame(app){
         </div>
       </div>
     ` : ''}
-    
+
     ${S.dailyLife?`
       <div class="daily-card">
         <div class="daily-icon">${S.dailyLife.icon}</div>
