@@ -36,6 +36,8 @@ export function freshState(){
     minigameDone:{quiz:0,puzzle:0,defense:0},
     treeChoices:{},
     legacyUpgrades: {}
+    skillPoints: 0,
+    boughtPerks: []
   };
 }
 
@@ -64,6 +66,8 @@ export function initState(){
   if(!S.minigameDone) S.minigameDone={quiz:0,puzzle:0,defense:0};
   if(!S.treeChoices) S.treeChoices={};
   if(!S.legacyUpgrades) S.legacyUpgrades={};
+  if(S.skillPoints === undefined) S.skillPoints = 0;
+  if(!S.boughtPerks) S.boughtPerks = [];
   saveState();
 }
 
