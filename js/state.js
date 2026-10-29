@@ -39,6 +39,8 @@ export function freshState(){
     skillPoints: 0,
     boughtPerks: [],
     activeGlobalEvent: null,
+    influence: 0,
+    enemies: 0,
     globalEventYearsLeft: 0
   };
 }
@@ -72,6 +74,8 @@ export function initState(){
   if(!S.boughtPerks) S.boughtPerks = [];
   if(S.activeGlobalEvent === undefined) S.activeGlobalEvent = null;
   if(S.globalEventYearsLeft === undefined) S.globalEventYearsLeft = 0;
+  if(S.influence === undefined) S.influence = 0;
+  if(S.enemies === undefined) S.enemies = 0;
   
   saveState();
 }
