@@ -2,6 +2,7 @@ import { S, Legacy, newLife } from '../state.js';
 import { ACHIEVEMENTS, BACKSTORIES } from '../config.js';
 import { FINALS } from '../finals.js';
 import { escapeHtml, formatMoney } from '../utils.js';
+import { arcSummary } from '../arcs.js';
 import { getAvatar, statHTML } from './game.js';
 import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
@@ -10,6 +11,7 @@ import { render } from './render.js';
 export function renderFinal(app) {
   const f = FINALS[S.final] || FINALS.teacher;
   const bs = S.backstory ? BACKSTORIES[S.backstory] : null;
+  const life = arcSummary();
   const badges = S.achievements
     .map(id => ACHIEVEMENTS[id])
     .filter(Boolean)
@@ -28,6 +30,11 @@ export function renderFinal(app) {
       <div class="desc">${escapeHtml(f.desc)}</div>
 
       <div class="persona">🏅 Титул: ${escapeHtml(S.personaTitle || 'Учёный')}</div>
+
+      ${life.length ? `<div class="final-life">
+        <h3>Жизнь вне науки</h3>
+        <div class="life-chips">${life.map(x => `<span class="life-chip">${escapeHtml(x)}</span>`).join('')}</div>
+      </div>` : ''}
 
       <div class="legacy-block">
         <h3>🌀 Получено Наследия: +${S.earnedLegacy || 0} ОН</h3>

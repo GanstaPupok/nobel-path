@@ -35,7 +35,19 @@ export function makeCtx() {
     sound: (n) => playSound(n),
     ach: (id) => addAchievement(id),
     projectProgress: (n) => { addProjectProgress(n).forEach(m => addLog(m)); },
-    setArc: (name, data) => { S.arcs[name] = data; }
+    setArc: (name, data) => { S.arcs[name] = data; },
+    arc: (name) => S.arcs[name],
+    /** Меняет числовую характеристику арки (любовь, связь с ребёнком) в пределах 0..100. */
+    bump: (name, key, delta) => {
+      const a = S.arcs[name];
+      if (!a) return;
+      a[key] = Math.max(0, Math.min(100, (a[key] || 0) + delta));
+    },
+    /** Переводит арку на следующую стадию, сохраняя остальные поля. */
+    advance: (name, stage, extra = {}) => {
+      if (!S.arcs[name]) return;
+      Object.assign(S.arcs[name], { stage }, extra);
+    }
   };
 }
 
@@ -54,8 +66,16 @@ export function checkWhen(w) {
   if (w.arc) {
     const arc = S.arcs[w.arc];
     if (!arc) return false;
-    if (w.arcStage && arc.stage !== w.arcStage) return false;
+    if (w.arcStage) {
+      const stages = Array.isArray(w.arcStage) ? w.arcStage : [w.arcStage];
+      if (!stages.includes(arc.stage)) return false;
+    }
+    // Минимальная «глубина» арки: сколько лет она уже тянется
+    if (w.minArcYears !== undefined && (arc.years || 0) < w.minArcYears) return false;
   }
+  if (w.noArc && S.arcs[w.noArc]) return false;
+  if (w.hasArc && !S.arcs[w.hasArc]) return false;
+  if (w.minLove !== undefined && (!S.arcs.love || (S.arcs.love.love || 0) < w.minLove)) return false;
   return true;
 }
 
@@ -74,14 +94,30 @@ export function rollEvent() {
   });
   if (!pool.length) return null;
 
+  // Сюжетные арки важнее случайных vignette. Каждая арка получает свой
+  // «ход»: иначе одна активная линия (например, любовь) съедает все годы
+  // и до детей или наставника дело не доходит.
+  const arcPool = pool.filter(e => e.when && (e.when.arc || e.when.noArc) && !e.arcMinor);
+  let chosenPool = pool;
+  if (arcPool.length && Math.random() < 0.7) {
+    const byArc = new Map();
+    for (const e of arcPool) {
+      const key = e.when.arc || e.when.noArc || 'other';
+      if (!byArc.has(key)) byArc.set(key, []);
+      byArc.get(key).push(e);
+    }
+    const keys = [...byArc.keys()];
+    chosenPool = byArc.get(keys[(Math.random() * keys.length) | 0]);
+  }
+
   // Редкие события выпадают в 3 раза реже обычных.
-  const weights = pool.map(e => (e.rare ? 1 / 3 : 1) * (e.weight || 1));
+  const weights = chosenPool.map(e => (e.rare ? 1 / 3 : 1) * (e.weight || 1));
   const total = weights.reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
-  let ev = pool[pool.length - 1];
-  for (let i = 0; i < pool.length; i++) {
+  let ev = chosenPool[chosenPool.length - 1];
+  for (let i = 0; i < chosenPool.length; i++) {
     r -= weights[i];
-    if (r <= 0) { ev = pool[i]; break; }
+    if (r <= 0) { ev = chosenPool[i]; break; }
   }
 
   if (ev.rare && ev.rareId && !S.rareSeen.includes(ev.rareId)) S.rareSeen.push(ev.rareId);

@@ -249,6 +249,13 @@ await evalJs(`(() => {
   raw.project = { id: 'quantum', tier: 0, progress: 40 };
   raw.rep = 60; raw.int = 70; raw.discoveries = 2; raw.energy = 3; raw.actedThisYear = 0;
   raw.money = 200000; raw.pendingEvent = null; raw.pendingModal = null;
+  raw.arcs = {
+    love: { stage: 'married', years: 4, love: 65, partner: { id: 'creative', name: 'Аня', icon: '🎨', trait: 'creative' } },
+    family: { stage: 'kid', years: 2, childName: 'Миша', bond: 65 },
+    rival: { name: 'Виктор', stage: 'clash', years: 3 },
+    mentor: { name: 'профессор Лихачёв', stage: 'supported', years: 2, bond: 60 },
+    friend: null, hater: null, coauthor: null, hobby: null
+  };
   localStorage.setItem('nobel_path_v6', JSON.stringify(raw));
 })()`);
 await evalJs(`location.reload()`);
@@ -258,8 +265,31 @@ check('карточка проекта отображается', await evalJs(`
 check('трекер Нобеля отображается', await evalJs(`document.querySelectorAll('.nobel-chip').length === 3`));
 check('действия разложены по вкладкам', await evalJs(`document.querySelectorAll('.action-tab').length >= 2`),
   `${await evalJs(`document.querySelectorAll('.action-tab').length`)} вкладок`);
+check('карточки арок отношений видны', await evalJs(`document.querySelectorAll('.arc-card').length >= 3`),
+  `${await evalJs(`document.querySelectorAll('.arc-card').length`)} карточек`);
+
+// вкладка «Жизнь»: действие с партнёром повышает чувства
+await evalJs(`(() => {
+  const tab = [...document.querySelectorAll('.action-tab')].find(t => t.textContent.includes('Жизнь'));
+  if (tab) tab.click();
+})()`);
+await sleep(250);
+const loveBefore = (await save())?.arcs?.love?.love;
+await evalJs(`(() => {
+  const b = [...document.querySelectorAll('#actions button')].find(x => x.textContent.includes('Время с партнёром'));
+  if (b) b.click();
+})()`);
+await sleep(450);
+await clearOverlays();
+const loveAfter = (await save())?.arcs?.love?.love;
+check('время с партнёром укрепляет отношения', loveAfter > loveBefore, `${loveBefore} → ${loveAfter}`);
 
 const projectBefore = (await save())?.project?.progress;
+await evalJs(`(() => {
+  const tab = [...document.querySelectorAll('.action-tab')].find(t => t.textContent.includes('Наука'));
+  if (tab) tab.click();
+})()`);
+await sleep(200);
 await evalJs(`(() => {
   const b = [...document.querySelectorAll('#actions button')].find(x => x.textContent.includes('Работать над проектом'));
   if (b) b.click();

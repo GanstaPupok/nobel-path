@@ -43,7 +43,14 @@ export function checkFinal() {
   points += Math.floor(S.money / 200000);
   points += Math.floor(S.rep / 5);
   if (S.final === 'nobel') points += 100;
-  if (S.arcs.family && S.arcs.family.stage === 'kid') points += 20;
+  if (S.flags.projectDone) points += 30;
+
+  // Отношения дают заметную прибавку — это тоже часть прожитой жизни
+  const a = S.arcs || {};
+  if (a.love && a.love.stage === 'married') points += 15;
+  if (a.family && a.family.stage === 'legacy') points += 20;
+  if (a.mentor && a.mentor.stage === 'legacy') points += 15;
+  if (a.rival && (a.rival.stage === 'won' || a.rival.stage === 'friends')) points += 10;
   points = Math.max(10, points);
 
   Legacy.points += points;
@@ -55,15 +62,27 @@ export function checkFinal() {
 }
 
 function pickPersona() {
-  const love = S.arcs.love;
-  const fam = S.arcs.family;
-  if (love && love.stage === 'married' && fam && fam.stage === 'kid') return 'Семейный профессор';
+  const a = S.arcs || {};
+  const love = a.love;
+  const fam = a.family;
+  const mentor = a.mentor;
+  const rival = a.rival;
+
+  if (mentor && mentor.stage === 'legacy' && fam && fam.stage === 'legacy') return 'Патриарх науки';
+  if (love && love.stage === 'married' && fam && fam.stage === 'legacy') return 'Семейный профессор';
   if (love && love.stage === 'married' && S.money > 5000000) return 'Профессор-миллионер';
-  if (S.discoveries >= 5 && (!love || love.stage !== 'married')) return 'Одинокий гений';
-  if (S.arcs.hobby && S.arcs.hobby.stage === 'active') return 'Творческий учёный';
+  if (love && love.stage === 'divorced' && S.discoveries >= 4) return 'Учёный, отдавший всё науке';
+  if (love && love.stage === 'divorced') return 'Человек после развода';
+  if (fundingBadge()) return 'Одинокий гений';
+  if (rival && (rival.stage === 'won' || rival.stage === 'friends') && S.rep >= 70) return 'Победитель соперника';
+  if (a.hobby && a.hobby.stage === 'active') return 'Творческий учёный';
   if (S.enemies >= 5) return 'Интриган от науки';
   if (S.health < 30) return 'Загнанная лошадь';
   if (S.influence >= 20) return 'Академический политик';
   if (S.publications >= 10) return 'Машина публикаций';
   return 'Обычный учёный';
+}
+
+function fundingBadge() {
+  return S.discoveries >= 5 && (!S.arcs.love || S.arcs.love.stage !== 'married');
 }

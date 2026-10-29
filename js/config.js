@@ -5,6 +5,7 @@ export const SOUND_KEY = 'nobel_sound';
 
 export const SKILLS = ['math','chem','bio','it','write'];
 export const SKILL_NAMES = {math:'Математика',chem:'Химия',bio:'Биология',it:'IT',write:'Письмо'};
+export const SKILL_ICONS = {math:'🧮',chem:'🧪',bio:'🧬',it:'💻',write:'✍️'};
 
 export const AVATARS_M = ['🧒','👦','🧑','👨','🧑‍🎓','🧑‍🔬','👨‍🔬','👨‍🏫','👨‍💼','👴'];
 export const AVATARS_F = ['🧒','👧','🧑','👩','🧑‍🎓','🧑‍🔬','👩‍🔬','👩‍🏫','👩‍💼','👵'];

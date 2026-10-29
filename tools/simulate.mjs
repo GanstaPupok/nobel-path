@@ -202,7 +202,11 @@ function runLife({ policy = 'smart', reloads = false } = {}) {
     tree: Object.keys(o.treeChoices).length, salary: o.position,
     seenStages: [...seen], usedActions: usedActions.size, eventsSeen,
     project: projectStatus() ? (S().flags.projectDone ? 'done' : 'in progress') : 'none',
-    milestones: (o.milestones || []).length
+    milestones: (o.milestones || []).length,
+    love: o.arcs.love ? o.arcs.love.stage : 'none',
+    family: o.arcs.family ? o.arcs.family.stage : 'none',
+    mentor: o.arcs.mentor ? o.arcs.mentor.stage : 'none',
+    rival: o.arcs.rival ? o.arcs.rival.stage : 'none'
   };
 }
 
@@ -236,6 +240,16 @@ function report(title, results) {
   const proj = {};
   for (const r of ok) proj[r.project] = (proj[r.project] || 0) + 1;
   console.log('проект:', Object.entries(proj).map(([k, v]) => `${k} ${Math.round(v / total * 100)}%`).join(' · '));
+
+  const dist = key => {
+    const m = {};
+    for (const r of ok) m[r[key]] = (m[r[key]] || 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${Math.round(v / total * 100)}%`).join(' · ');
+  };
+  console.log('любовь:', dist('love'));
+  console.log('семья:', dist('family'));
+  console.log('наставник:', dist('mentor'));
+  console.log('соперник:', dist('rival'));
 
   const reached = {};
   for (const r of ok) reached[r.stage] = (reached[r.stage] || 0) + 1;

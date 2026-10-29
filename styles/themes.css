@@ -1,16 +1,86 @@
+/* ============================================================
+   Палитра «ночная лаборатория»: глубокий индиго + тёплое золото
+   ============================================================ */
 :root, [data-theme="dark"]{
-  --bg:#0a0e14;--bg2:#0d1117;--panel:#161b22;--panel2:#1c232e;--panel3:#232c38;
-  --border:#30363d;--accent:#e94560;--accent2:#f05570;--gold:#ffd700;--gold2:#ffb700;
-  --text:#e6edf3;--muted:#8b949e;--green:#3fb950;--red:#f85149;--blue:#58a6ff;--purple:#a371f7;
-  --shadow:0 4px 20px rgba(0,0,0,0.4);--shadow-glow:0 0 20px rgba(255,215,0,0.3);
-  --bg-grad-1:rgba(233,69,96,0.08);--bg-grad-2:rgba(88,166,255,0.06);
-  --body-bg-1:#0a0e14;--body-bg-2:#0d1117;--modal-bg:rgba(0,0,0,0.85);--btn-text:#fff;
+  --bg:#070a14;
+  --bg2:#0b1020;
+  --panel:#11162a;
+  --panel2:#161d33;
+  --panel3:#1e2742;
+
+  --border:rgba(255,255,255,0.09);
+  --border-strong:rgba(255,255,255,0.16);
+
+  --text:#eef2ff;
+  --muted:#8d95b5;
+
+  --accent:#7c5cff;
+  --accent2:#9d7bff;
+  --gold:#ffcf5c;
+  --gold2:#ffb020;
+  --green:#3ddc97;
+  --red:#ff6b81;
+  --blue:#5aa9ff;
+  --purple:#b185ff;
+  --pink:#ff8fb1;
+  --cyan:#4fd8e8;
+
+  --shadow:0 14px 34px rgba(0,0,0,0.45);
+  --shadow-soft:0 6px 18px rgba(0,0,0,0.28);
+  --shadow-glow:0 0 26px rgba(124,92,255,0.35);
+
+  --bg-grad-1:rgba(124,92,255,0.20);
+  --bg-grad-2:rgba(255,143,177,0.12);
+  --bg-grad-3:rgba(79,216,232,0.10);
+
+  --body-bg-1:#070a14;
+  --body-bg-2:#0b1020;
+  --modal-bg:rgba(4,6,14,0.80);
+  --btn-text:#fff;
+
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:10px;
+
+  --title-grad:linear-gradient(120deg,#ffb020,#ffcf5c 45%,#fff2c4 70%,#ffcf5c);
 }
+
 [data-theme="light"]{
-  --bg:#f6f8fa;--bg2:#eaeef2;--panel:#ffffff;--panel2:#f0f3f6;--panel3:#e4e8ec;
-  --border:#d0d7de;--accent:#d6336c;--accent2:#e64980;--gold:#b8860b;--gold2:#daa520;
-  --text:#1f2328;--muted:#656d76;--green:#1a7f37;--red:#cf222e;--blue:#0969da;--purple:#8250df;
-  --shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-glow:0 0 20px rgba(184,134,11,0.2);
-  --bg-grad-1:rgba(214,51,108,0.06);--bg-grad-2:rgba(9,105,218,0.04);
-  --body-bg-1:#f6f8fa;--body-bg-2:#eaeef2;--modal-bg:rgba(0,0,0,0.5);--btn-text:#fff;
+  --bg:#f7f5f1;
+  --bg2:#efece6;
+  --panel:#ffffff;
+  --panel2:#f4f1eb;
+  --panel3:#eae5dc;
+
+  --border:rgba(25,25,45,0.10);
+  --border-strong:rgba(25,25,45,0.18);
+
+  --text:#1b1b31;
+  --muted:#6c7085;
+
+  --accent:#6d4aff;
+  --accent2:#8567ff;
+  --gold:#a9761a;
+  --gold2:#c9922a;
+  --green:#12925f;
+  --red:#d63b55;
+  --blue:#1f6feb;
+  --purple:#7a4fd8;
+  --pink:#d9538f;
+  --cyan:#0d8f9e;
+
+  --shadow:0 14px 30px rgba(30,25,60,0.10);
+  --shadow-soft:0 6px 16px rgba(30,25,60,0.07);
+  --shadow-glow:0 0 22px rgba(109,74,255,0.18);
+
+  --bg-grad-1:rgba(109,74,255,0.10);
+  --bg-grad-2:rgba(217,83,143,0.08);
+  --bg-grad-3:rgba(13,143,158,0.06);
+
+  --body-bg-1:#f7f5f1;
+  --body-bg-2:#efece6;
+  --modal-bg:rgba(35,30,55,0.42);
+  --btn-text:#fff;
+
+  --title-grad:linear-gradient(120deg,#8a5a00,#b07a00 45%,#d99a1a 70%,#9a6600);
 }

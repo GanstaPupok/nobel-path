@@ -1,5 +1,5 @@
 import { S, newLife } from '../state.js';
-import { SKILLS, SKILL_NAMES, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS, ACHIEVEMENTS, GATES, NOBEL, PROJECTS } from '../config.js';
+import { SKILLS, SKILL_NAMES, SKILL_ICONS, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS, ACHIEVEMENTS, GATES, NOBEL, PROJECTS } from '../config.js';
 import { escapeHtml, formatMoney, clamp } from '../utils.js';
 import { getArcCards } from '../arcs.js';
 import { getActiveQuests, questProgress } from '../quests.js';
@@ -22,13 +22,14 @@ export function getAvatar() {
   return arr[9];
 }
 
-export function statHTML(label, val, barVal, barMax, color) {
+export function statHTML(label, val, barVal, barMax, color, icon = '') {
   let bar = '';
   if (barVal !== undefined) {
     const pct = clamp(barVal / barMax * 100, 0, 100);
     bar = `<div class="bar"><div style="width:${pct}%;background:${color || 'var(--accent)'}"></div></div>`;
   }
-  return `<div class="stat"><div class="label">${label}</div><div class="val">${val}</div>${bar}</div>`;
+  const head = `<div class="stat-head">${icon ? `<span class="stat-icon">${icon}</span>` : ''}<span class="label">${label}</span></div>`;
+  return `<div class="stat">${head}<div class="val">${val}</div>${bar}</div>`;
 }
 
 /** Текущая цель этапа — чтобы игрок понимал, к чему готовиться. */
@@ -91,6 +92,8 @@ export function renderGame(app) {
   const quests = getActiveQuests();
   const ge = S.activeGlobalEvent ? GLOBAL_EVENTS[S.activeGlobalEvent] : null;
   const project = projectCard();
+  const pips = Array.from({ length: Math.max(0, S.energy) }, (_, i) =>
+    `<span class="pip ${i < left ? 'on' : ''}"></span>`).join('');
   const noProjectTopics = !S.project && ['phd', 'career'].includes(S.stage)
     ? Object.values(PROJECTS).map(p => `<span class="topic-pill">${p.icon} ${p.title}</span>`).join('')
     : '';
@@ -109,7 +112,7 @@ export function renderGame(app) {
       <div class="hero-info">
         <div class="name">${escapeHtml(S.name)}, ${S.age} лет</div>
         <div class="role">${escapeHtml(S.position)}${S.spec ? ' · ' + SPEC_NAMES[S.spec] : ''}</div>
-        <div class="stage">Этап: ${STAGES[S.stage]?.name || '—'} · ⚡ ${left}/${S.energy}</div>
+        <div class="stage"><span>Этап: ${STAGES[S.stage]?.name || '—'}</span><span class="pips">${pips}</span></div>
         <div class="goal">${getGoal()}</div>
         ${bs ? `<div class="bs-tag">${bs.icon} ${bs.title}</div>` : ''}
       </div>
@@ -157,20 +160,20 @@ export function renderGame(app) {
     }).join('')}
 
     <div class="stats">
-      ${statHTML('Интеллект', S.int, S.int, 100, 'var(--blue)')}
-      ${statHTML('Здоровье', S.health, S.health, 100, 'var(--green)')}
-      ${statHTML('Харизма', S.charm, S.charm, 100, 'var(--purple)')}
-      ${statHTML('Стресс', S.stress + '%', S.stress, 100, 'var(--red)')}
-      ${statHTML('Репутация', S.rep, S.rep, 100, 'var(--gold)')}
-      ${statHTML('Деньги', formatMoney(S.money))}
-      ${statHTML('Публикаций', S.publications)}
-      ${statHTML('Открытий', S.discoveries)}
-      ${statHTML('Влияние', S.influence, S.influence, 30, 'var(--blue)')}
-      ${statHTML('Враги', S.enemies, S.enemies, 10, 'var(--red)')}
+      ${statHTML('Интеллект', S.int, S.int, 100, 'var(--blue)', '🧠')}
+      ${statHTML('Здоровье', S.health, S.health, 100, 'var(--green)', '❤️')}
+      ${statHTML('Харизма', S.charm, S.charm, 100, 'var(--purple)', '🗣️')}
+      ${statHTML('Стресс', S.stress + '%', S.stress, 100, 'var(--red)', '😰')}
+      ${statHTML('Репутация', S.rep, S.rep, 100, 'var(--gold)', '⭐')}
+      ${statHTML('Деньги', formatMoney(S.money), undefined, 1, 'var(--gold)', '💰')}
+      ${statHTML('Публикаций', S.publications, undefined, 1, 'var(--blue)', '📄')}
+      ${statHTML('Открытий', S.discoveries, undefined, 1, 'var(--purple)', '💥')}
+      ${statHTML('Влияние', S.influence, S.influence, 30, 'var(--blue)', '🏛️')}
+      ${statHTML('Враги', S.enemies, S.enemies, 10, 'var(--red)', '⚔️')}
     </div>
 
     <div class="skills">
-      ${SKILLS.map(k => `<div class="skill"><div class="label">${SKILL_NAMES[k]}</div><div class="val">${S.skills[k]}</div></div>`).join('')}
+      ${SKILLS.map(k => `<div class="skill"><span class="skill-icon">${SKILL_ICONS[k] || ''}</span><span class="label">${SKILL_NAMES[k]}</span><span class="val">${S.skills[k]}</span></div>`).join('')}
     </div>
 
     <div class="log" id="logBox">

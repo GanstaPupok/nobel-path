@@ -369,6 +369,34 @@ export function getActions() {
     }, 'safe', { req: S.stress >= 50, reqText: 'нужен стресс 50+', group: 'life' });
   }
 
+  // ============ ОТНОШЕНИЯ (доступны на любом этапе) ============
+  const love = S.arcs.love;
+  if (love && (love.stage === 'dating' || love.stage === 'married')) {
+    const who = love.partner ? love.partner.name : 'партнёром';
+    add('❤️ Время с партнёром', 'Чувства +8, стресс −8', 1, () => {
+      love.love = Math.min(100, (love.love || 0) + 8);
+      S.stress = clamp(S.stress - 8, 0, 100);
+      addLog(`Провёл вечер с ${who}.`); playSound('success');
+    }, 'safe', { group: 'life' });
+  }
+  if (S.arcs.family && ['kid', 'school', 'teen'].includes(S.arcs.family.stage)) {
+    const child = S.arcs.family.childName || 'ребёнком';
+    add('👶 Время с ребёнком', 'Связь +8, стресс −6', 1, () => {
+      S.arcs.family.bond = Math.min(100, (S.arcs.family.bond || 0) + 8);
+      S.stress = clamp(S.stress - 6, 0, 100);
+      addLog(`Провёл день с ${child}.`); playSound('success');
+    }, 'safe', { group: 'life' });
+  }
+  if (S.arcs.mentor && ['found', 'tested', 'supported', 'ill'].includes(S.arcs.mentor.stage)) {
+    const m = S.arcs.mentor.name || 'наставником';
+    add('🎓 Навестить наставника', 'Связь +5, репутация +1, стресс −5', 1, () => {
+      S.arcs.mentor.bond = Math.min(100, (S.arcs.mentor.bond || 0) + 5);
+      S.rep = clamp(S.rep + 1, 0, 100);
+      S.stress = clamp(S.stress - 5, 0, 100);
+      addLog(`Поговорил с ${m}.`); playSound('click');
+    }, '', { group: 'life' });
+  }
+
   return acts;
 }
 
