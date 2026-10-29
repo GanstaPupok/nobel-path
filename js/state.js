@@ -1,6 +1,19 @@
 import { SAVE_KEY } from './config.js';
 
+const LEGACY_KEY = 'nobel_path_legacy';
+
 export let S;
+export let Legacy = { points: 0, upgrades: {} };
+
+export function loadLegacy() {
+  try {
+    const d = localStorage.getItem(LEGACY_KEY);
+    if(d) Legacy = JSON.parse(d);
+  } catch(e){}
+}
+export function saveLegacy() {
+  localStorage.setItem(LEGACY_KEY, JSON.stringify(Legacy));
+}
 
 export function freshState(){
   return {
@@ -22,6 +35,7 @@ export function freshState(){
     quests:[],            // активные микро-квесты
     minigameDone:{quiz:0,puzzle:0,defense:0},
     treeChoices:{}        // выборы в древе решений
+    legacyUpgrades: {}
   };
 }
 
@@ -34,6 +48,7 @@ export function loadState(){
 }
 
 export function initState(){
+  loadLegacy();
   if(!loadState()){
     S = freshState();
   }
@@ -57,6 +72,7 @@ export function saveState(){
 
 export function resetState(){
   localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(LEGACY_KEY);
   location.reload();
 }
 
