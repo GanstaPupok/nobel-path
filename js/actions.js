@@ -3,7 +3,8 @@ import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { clamp } from './utils.js';
 import { SKILLS } from './config.js';
-import { addSkillPoint } from './skills.js';
+import { getGlobalModifier } from './world.js'; 
+import { addSkillPoint } from './skills.js'; 
 
 function rndSkill(){ return SKILLS[Math.floor(Math.random()*SKILLS.length)]; }
 const d20 = ()=>Math.floor(Math.random()*20)+1;
@@ -97,7 +98,7 @@ export function getActions(){
       S.skills[rndSkill()]+=5;S.money+=3000;S.stress=clamp(S.stress+8,0,100);addLog('Лаборатория.');playSound('coin');
     });
     add('💥 Провести эксперимент','Риск! Открытие / провал',1,()=>{
-      const bonus=Math.floor(S.int/10)+(S.spec?3:0);
+      const bonus = (Math.floor(S.int/10) + (S.spec?3:0)) * getGlobalModifier('discoveryChance');
       const roll=d20()+bonus;
       S.money=Math.max(0,S.money-1000);S.stress=clamp(S.stress+10,0,100);
       if(roll>15){S.discoveries++;S.rep=clamp(S.rep+10,0,100);addLog('💥 Открытие!');addAchievement('first_disc');playSound('success');}
@@ -111,7 +112,7 @@ export function getActions(){
     });
     add('💰 Грантрайтинг','Шанс получить грант',1,()=>{
       const roll=d20()+Math.floor(S.charm/10);
-      if(roll>12){S.money += S.flags.luckyGrants ? 100000 : 50000;;S.rep=clamp(S.rep+5,0,100);S.grants++;addLog('💰 Грант! +50 000 ₽');addAchievement('first_grant');playSound('coin');}
+      if(roll>12){S.money += 50000 * getGlobalModifier('grantMoney') * (S.flags.luckyGrants ? 2 : 1);S.rep=clamp(S.rep+5,0,100);S.grants++;addLog('💰 Грант! +50 000 ₽');addAchievement('first_grant');playSound('coin');}
       else{addLog('Отказ.');playSound('fail');}
       S.stress=clamp(S.stress+5,0,100);
     });
@@ -150,7 +151,7 @@ export function getActions(){
       S.money+=10000;S.stress=clamp(S.stress+10,0,100);addLog('Работа.');playSound('coin');
     });
     add('🌌 Big Science','Высокий риск и награда',1,()=>{
-      const bonus=Math.floor(S.int/8)+Math.floor(S.rep/10)+(S.spec?5:0);
+      const bonus = (Math.floor(S.int/8) + Math.floor(S.rep/10) + (S.spec?5:0)) * getGlobalModifier('discoveryChance');
       const roll=d20()+bonus;
       S.stress=clamp(S.stress+15,0,100);
       if(roll>18){S.discoveries++;S.rep=clamp(S.rep+20,0,100);S.money+=100000;addLog('🌌 Открытие! +100 000 ₽');addAchievement('big_science');playSound('success');}
