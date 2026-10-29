@@ -12,7 +12,8 @@ export function endYear(){
   S.age++; S.year++; S.yearCount++;
   S.actedThisYear = 0;
   S.energy = 3 + (S.health>70?1:0) + (S.charm>70?1:0);
-  S.money = Math.max(0, S.money - 2000);
+  const rent = 2000 / getGlobalModifier('salary'); // при кризисе жилье дешевле (или наоборот)
+  S.money = Math.max(0, S.money - rent);
   S.stress = clamp(S.stress - 5, 0, 100);
   if(S.stress > 80){ S.health = clamp(S.health - 10, 0, 100); addLog('⚠️ Высокий стресс подорвал здоровье.'); }
 
