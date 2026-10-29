@@ -7,7 +7,7 @@ import { renderFinal } from './final.js';
 import { getActions } from '../actions.js';
 import { rollEvent } from '../events/engine.js';
 import { checkThresholds } from '../achievements.js';
-import { getAvailableTreeBranch, applyTreeChoice, TREE_BRANCHES } from '../tree.js';
+import { getAvailableTreeBranch, applyTreeChoice } from '../tree.js';
 import { endYear } from '../year.js';
 import { MINIGAMES } from '../minigames/index.js';
 import { playSound } from '../audio.js';
@@ -22,12 +22,10 @@ export function render(){
 }
 
 export function afterAction(){
-  // Шанс события
   if(Math.random()<0.3 && !S.pendingEvent && !S.pendingModal){
     const ev = rollEvent();
     if(ev) S.pendingEvent = ev;
   }
-  // Древо решений
   if(!S.pendingEvent && !S.pendingModal){
     const branch = getAvailableTreeBranch();
     if(branch && Math.random()<0.4){
@@ -66,44 +64,37 @@ export function renderActions(){
     };
     container.appendChild(b);
   });
-  
-  // Кнопка дерева навыков
-  if (S.skillPoints > 0) {
-    const st = document.createElement('button');
-    st.className = 'special';
-    st.innerHTML = `🌳 Дерево навыков<small>Доступно очков: ${S.skillPoints} · не тратит энергию</small>`;
-    st.onclick = () => {
-      import('../skills.js').then(m => m.openSkillTree());
-    };
-    container.appendChild(st);
-  }
-  
-  // Кнопка мини-игры
+
   const mg = document.createElement('button');
   mg.className = 'quest';
-  const mgList = MINIGAMES;
-  mg.innerHTML = `🎮 Мини-игра<small>${mgList.length} вариантов · не тратит энергию</small>`;
-  mg.onclick = ()=>{
-    // Выбор мини-игры через модалку
-    S.pendingModal = {
-      title:'🎮 Мини-игра',
-      desc:'Проверь себя и получи бонусы.',
-      opts: mgList.map(m=>({
-        title:`${m.icon} ${m.title}`,
-        desc: m.desc,
-        f:()=>{
-          m.fn((result, good)=>{
-            addLog(`🎮 Мини-игра: ${result}`);
-            afterAction();
-          });
-        }
-      }))
+  S.minigamesThisYear = S.minigamesThisYear || 0;
+  
+  if (S.minigamesThisYear >= 2) {
+    mg.disabled = true;
+    mg.innerHTML = `🎮 Мини-игра<small>Лимит на этот год исчерпан (2/2)</small>`;
+  } else {
+    mg.innerHTML = `🎮 Мини-игра<small>${MINIGAMES.length} вариантов · осталось: ${2 - S.minigamesThisYear}</small>`;
+    mg.onclick = ()=>{
+      S.pendingModal = {
+        title:'🎮 Мини-игра',
+        desc:'Проверь себя и получи бонусы. (Не тратит энергию)',
+        opts: MINIGAMES.map(m=>({
+          title:`${m.icon} ${m.title}`,
+          desc: m.desc,
+          f:()=>{
+            S.minigamesThisYear++;
+            m.fn((result, good)=>{
+              addLog(`🎮 Мини-игра: ${result}`);
+              afterAction();
+            });
+          }
+        }))
+      };
+      render();
     };
-    render();
-  };
+  }
   container.appendChild(mg);
 
-  // Кнопка завершения года
   const end = document.createElement('button');
   end.className = 'end-year';
   end.innerHTML = '➡️ Завершить год<small>Пропустить оставшиеся действия</small>';
