@@ -102,4 +102,33 @@ export const ACHIEVEMENTS = {
   defense_master:{icon:'🛡️',name:'Защитник'},
   quest_hero:{icon:'⭐',name:'Герой квестов'},
   tree_master:{icon:'🌳',name:'Мудрец'}
+// ============================================================
+// НАСЛЕДИЕ (МЕТА-ПРОГРЕССИЯ)
+// ============================================================
+export const LEGACY_PERKS = {
+  money: {
+    id:'money', icon:'💰', title:'Семейный капитал', 
+    desc:'Ты родился в семье с сбережениями.',
+    cost: 100, effect:{ money: 10000 }, maxLevel: 3
+  },
+  intellect: {
+    id:'intellect', icon:'🧠', title:'Гены гения', 
+    desc:'Твои родители были очень умны.',
+    cost: 150, effect:{ int: 5 }, maxLevel: 5
+  },
+  health: {
+    id:'health', icon:'💪', title:'Крепкое здоровье', 
+    desc:'Хорошая наследственность.',
+    cost: 120, effect:{ health: 15 }, maxLevel: 3
+  },
+  charm: {
+    id:'charm', icon:'🗣️', title:'Обаяние', 
+    desc:'Ты умеешь нравиться людям с детства.',
+    cost: 150, effect:{ charm: 5 }, maxLevel: 3
+  },
+  energy: {
+    id:'energy', icon:'⚡', title:'Выносливость', 
+    desc:'Тебе нужно меньше времени на отдых.',
+    cost: 300, effect:{ energy: 1 }, maxLevel: 2
+  }
 };
