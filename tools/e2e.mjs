@@ -133,8 +133,19 @@ async function clearOverlays() {
 
 const save = () => evalJs(`(()=>{const r=localStorage.getItem('nobel_path_v6');return r?JSON.parse(r):null})()`);
 
+/** Ждёт появления элемента — GitHub Pages иногда отвечает медленнее локального сервера. */
+async function waitFor(selector, timeout = 15000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    if (await evalJs(`!!document.querySelector(${JSON.stringify(selector)})`)) return true;
+    await sleep(200);
+  }
+  return false;
+}
+
 await S('Page.navigate', { url: URL });
-await sleep(1400);
+await waitFor('.start-screen');
+await sleep(300);
 
 // ---------- Стартовый экран ----------
 check('стартовый экран отрисован', await evalJs(`!!document.querySelector('.start-screen')`));
