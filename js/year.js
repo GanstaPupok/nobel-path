@@ -15,6 +15,13 @@ export function endYear(){
   const rent = 2000 / getGlobalModifier('salary'); // при кризисе жилье дешевле (или наоборот)
   S.money = Math.max(0, S.money - rent);
     S.stress = clamp(S.stress + (5 * getGlobalModifier('stress')) - 10, 0, 100); 
+    
+  // Влияние пандемии на здоровье
+  if (S.activeGlobalEvent === 'pandemic') {
+    S.health = clamp(S.health - 5, 0, 100);
+    if (Math.random() < 0.3) addLog('🦠 Ты переболел в пандемию. Здоровье пошатнулось.');
+  }
+
   if(S.stress > 80){ S.health = clamp(S.health - 10, 0, 100); addLog('⚠️ Высокий стресс подорвал здоровье.'); }
 
   tickArcs();
