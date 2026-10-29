@@ -38,6 +38,8 @@ export function freshState(){
     legacyUpgrades: {},
     skillPoints: 0,
     boughtPerks: []
+    activeGlobalEvent: null,
+    globalEventYearsLeft: 0,
   };
 }
 
