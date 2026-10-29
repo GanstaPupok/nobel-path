@@ -133,4 +133,40 @@ export const LEGACY_PERKS = {
     desc:'Тебе нужно меньше времени на отдых.',
     cost: 300, effect:{ energy: 1 }, maxLevel: 2
   }
+// ============================================================
+// ДЕРЕВО НАВЫКОВ
+// ============================================================
+export const SKILL_TREE = {
+  prodigy: {
+    id: 'prodigy', icon: '🧠', title: 'Врождённый талант',
+    desc: 'Ты схватываешь всё на лету.', effect: '+10 к Интеллекту сразу', cost: 1
+  },
+  workaholic: {
+    id: 'workaholic', icon: '☕', title: 'Трудоголик',
+    desc: 'Ты работаешь без устали, но сильно устаёшь.', effect: '+1 Энергия, +5 Стресс', cost: 2
+  },
+  speaker: {
+    id: 'speaker', icon: '🎙️', title: 'Оратор',
+    desc: 'Ты умеешь убеждать людей.', effect: '+10 к Харизме сразу', cost: 1
+  },
+  lucky_grants: {
+    id: 'lucky_grants', icon: '💰', title: 'Грантоед',
+    desc: 'Ты знаешь, как выбивать деньги.', effect: 'Гранты приносят в 2 раза больше денег', cost: 3
+  },
+  iron_health: {
+    id: 'iron_health', icon: '🛡️', title: 'Железное здоровье',
+    desc: 'Ты никогда не болеешь.', effect: '+20 к Здоровью сразу', cost: 2
+  },
+  genius_pub: {
+    id: 'genius_pub', icon: '📝', title: 'Скорочтение',
+    desc: 'Ты пишешь статьи в два раза быстрее.', effect: 'Написание статьи требует на 5 стресса меньше', cost: 2
+  },
+  rival_master: {
+    id: 'rival_master', icon: '⚔️', title: 'Интриган',
+    desc: 'Ты всегда на шаг впереди конкурентов.', effect: '+10 к Репутации сразу', cost: 3
+  },
+  stress_resist: {
+    id: 'stress_resist', icon: '🧘', title: 'Дзен',
+    desc: 'Ты сохраняешь спокойствие в любой ситуации.', effect: '-10 к Стрессу сразу', cost: 1
+  }
 };
