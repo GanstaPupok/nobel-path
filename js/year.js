@@ -6,7 +6,7 @@ import { checkFinal } from './finals.js';
 import { rollDailyLife } from './daily.js';
 import { tickQuests, maybeAddQuest } from './quests.js';
 import { checkTreeConsequences } from './tree.js';
-import { checkGlobalEvents } from './world.js';
+import { checkGlobalEvents, getGlobalModifier } from './world.js';
 
 export function endYear(){
   S.age++; S.year++; S.yearCount++;
@@ -14,7 +14,7 @@ export function endYear(){
   S.energy = 3 + (S.health>70?1:0) + (S.charm>70?1:0);
   const rent = 2000 / getGlobalModifier('salary'); // при кризисе жилье дешевле (или наоборот)
   S.money = Math.max(0, S.money - rent);
-  S.stress = clamp(S.stress - 5, 0, 100);
+    S.stress = clamp(S.stress + (5 * getGlobalModifier('stress')) - 10, 0, 100); 
   if(S.stress > 80){ S.health = clamp(S.health - 10, 0, 100); addLog('⚠️ Высокий стресс подорвал здоровье.'); }
 
   tickArcs();
