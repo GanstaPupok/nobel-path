@@ -20,6 +20,10 @@ export function renderFinal(app){
       <h2 style="color:${f.color}">${f.title}</h2>
       ${bs?`<p style="color:var(--muted);font-size:13px">${bs.icon} ${bs.title}</p>`:''}
       <div class="desc">${f.desc}</div>
+            
+            <div style="font-size:16px; color:var(--purple); font-weight:700; margin-bottom:16px;">
+        🏅 Титул: ${S.personaTitle || 'Учёный'}
+      </div>
       
       <!-- БЛОК НАСЛЕДИЯ -->
       <div style="background:rgba(163,113,247,0.15); border:1px solid var(--purple); border-radius:12px; padding:12px; margin: 0 auto 20px; max-width: 400px;">
