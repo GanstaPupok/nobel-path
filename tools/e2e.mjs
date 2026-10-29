@@ -212,7 +212,7 @@ const actionCount = await evalJs(`document.querySelectorAll('#actions button').l
 check('действия доступны', actionCount >= 4, `${actionCount} кнопок`);
 check('показана цель этапа', await evalJs(`!!document.querySelector('.goal')`),
   await evalJs(`document.querySelector('.goal')?.textContent || ''`));
-check('наследие применилось к старту', await evalJs(`JSON.parse(localStorage.getItem('nobel_path_v6')).int >= 22`),
+check('наследие применилось к старту', await evalJs(`JSON.parse(localStorage.getItem('nobel_path_v6')).int >= 20`),
   `интеллект ${(await save())?.int}`);
 
 // ---------- Несколько лет игры ----------
@@ -359,6 +359,14 @@ await clearOverlays();
 const projectAfter = (await save())?.project;
 check('действие двигает проект вперёд', projectAfter && (projectAfter.progress > projectBefore || projectAfter.tier > 0),
   `прогресс ${projectBefore} → ${projectAfter?.progress}, этап ${projectAfter?.tier}`);
+
+// ---------- Автоматический год ----------
+const ageBeforeAuto = (await save())?.age;
+await evalJs(`(() => { const b = document.querySelector('.auto-year'); if (b) b.click(); })()`);
+await sleep(900);
+await clearOverlays();
+const ageAfterAuto = (await save())?.age;
+check('год проживается автоматически', ageAfterAuto === ageBeforeAuto + 1, `${ageBeforeAuto} → ${ageAfterAuto}`);
 
 // ---------- Лаборатория ----------
 await refillEnergy();

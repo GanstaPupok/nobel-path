@@ -33,6 +33,9 @@ export function endYear() {
     + ((S.lab && S.lab.setup) || 0)
     + (S.energyBonus || 0);
 
+  // В детстве энергия меньше: годы короткие, действий мало
+  if (S.age < 17) S.energy = Math.min(S.energy, 2);
+
   // Бытовые расходы. Дети живут с родителями и аренду не платят.
   const rent = rentForAge(S.age);
   const paid = Math.min(S.money, rent);

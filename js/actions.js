@@ -37,7 +37,7 @@ export function getActions() {
     if (moneyCost) hint += ` · 💰 ${moneyCost} ₽`;
     if (!meetsReq && opts.reqText) hint += ` · 🔒 ${opts.reqText}`;
 
-    acts.push({ name, desc: hint, cost, fn, cls, disabled, group: opts.group || 'science' });
+    acts.push({ name, desc: hint, cost, fn, cls, disabled, modal: !!opts.modal, group: opts.group || 'science' });
   };
 
   const projectAction = (group, desc = 'Прогресс темы, навык +2') => {
@@ -235,7 +235,7 @@ export function getActions() {
             }
           }))
         };
-      }, 'special', { req: true, group: 'science' });
+      }, 'special', { req: true, group: 'science', modal: true });
     } else {
       projectAction('science');
     }
@@ -272,7 +272,7 @@ export function getActions() {
           }
         }))
       };
-    });
+    }, 'special', { group: 'science', modal: true });
 
     add('✍️ Написать монографию', 'Публикации +2, деньги +30 000', 1, () => {
       S.publications += 2; S.money += 30000; S.rep = clamp(S.rep + 6, 0, 100);
@@ -362,7 +362,7 @@ export function getActions() {
       }, 'special', { req: !!step, reqText: 'максимальная должность', group: 'career' });
 
     add('🏗️ Лаборатория', labSummary(), 1, () => { openLab(); }, 'special',
-      { group: 'career', req: labOptions().length > 0, reqText: 'всё оборудовано' });
+      { group: 'career', modal: true, req: labOptions().length > 0, reqText: 'всё оборудовано' });
 
     add('📈 Инвестировать', 'Риск: ×3 / ×0 / −50%', 1, () => {
       const sum = Math.min(S.money, 50000);

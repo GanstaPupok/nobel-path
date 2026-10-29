@@ -710,6 +710,14 @@ button.end-year:hover:not(:disabled){filter:brightness(1.07);box-shadow:0 12px 2
 }
 .card-download:hover{filter:brightness(1.08)}
 
+/* Автоматический год */
+.auto-year{
+  background:linear-gradient(135deg,var(--panel2),var(--panel3));
+  border:1px dashed rgba(124,92,255,.45);color:var(--muted);
+}
+.auto-year:hover{color:var(--text);border-color:var(--accent);background:var(--panel3)}
+.auto-year small{color:var(--muted)}
+
 /* ============================================================
    АНИМАЦИИ И АДАПТИВ
    ============================================================ */

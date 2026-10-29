@@ -65,6 +65,63 @@ export function afterAction() {
 // Выбранная вкладка действий. Не сохраняется — интерфейсная настройка.
 let activeGroup = 'science';
 
+/** Выбирает действие для автоматического года: безопасное и осмысленное. */
+function pickAutoAction(list) {
+  const find = re => list.find(a => re.test(a.name));
+
+  // Сначала отдых, если совсем тяжело
+  if (S.stress >= 65) {
+    const rest = find(/Отдохнуть|Медитация|Отпуск/);
+    if (rest) return rest;
+  }
+
+  if (S.stage === 'school') {
+    if (S.money < 500) {
+      const job = find(/Подработка|Мыть полы/);
+      if (job) return job;
+    }
+    const study = find(/Учиться в школе|Читать научные книги|Кружок|Сочинения/);
+    if (study) return study;
+    return list.find(a => !/Спорт|Гулять/.test(a.name)) || null;
+  }
+
+  if (S.project && !(S.flags && S.flags.projectDone)) {
+    const proj = find(/Работать над проектом/);
+    if (proj) return proj;
+  }
+  if (S.money < 15000) {
+    const job = find(/^💼 Работать$|Подработка|Консалтинг/);
+    if (job) return job;
+  }
+  const learn = find(/Читать литературу|Учиться в вузе|Вести семинар|Лабораторная работа/);
+  if (learn) return learn;
+  if (S.int >= 70) {
+    const big = find(/Big Science/);
+    if (big) return big;
+  }
+  return list.find(a => !/Инвестировать|Плести интриги/.test(a.name)) || null;
+}
+
+/** Проживает год автоматически: оставшиеся действия выбираются сами. */
+export function autoYear() {
+  let guard = 0;
+  while (!S.finalReached && guard++ < 8) {
+    const left = S.energy - S.actedThisYear;
+    if (left <= 0) break;
+    const list = getActions().filter(a => !a.disabled && !a.modal && (a.cost || 1) <= left);
+    const pick = pickAutoAction(list);
+    if (!pick) break;
+    S.actedThisYear += pick.cost || 1;
+    pick.fn();
+    if (S.pendingEvent || S.pendingModal || S.finalReached) break;
+  }
+  checkThresholds();
+  saveState();
+  playSound('year');
+  endYear();
+  render();
+}
+
 export function renderActions() {
   const container = document.getElementById('actions');
   if (!container) return;
@@ -133,6 +190,12 @@ export function renderActions() {
     };
   }
   container.appendChild(mg);
+
+  const auto = document.createElement('button');
+  auto.className = 'auto-year';
+  auto.innerHTML = '⏩ Прожить год<small>Оставшиеся действия — автоматически</small>';
+  auto.onclick = () => autoYear();
+  container.appendChild(auto);
 
   const end = document.createElement('button');
   end.className = 'end-year';

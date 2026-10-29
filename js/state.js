@@ -30,7 +30,7 @@ export function freshState() {
   return {
     version: SAVE_VERSION,
     age: 7, year: 0, name: 'Алекс', gender: 'm', avatarSeed: Math.random(),
-    int: 5, health: 100, charm: 5, money: 0, energy: 3, stress: 0, rep: 0,
+    int: 5, health: 100, charm: 5, money: 0, energy: 2, stress: 0, rep: 0,
     skills: { math: 0, chem: 0, bio: 0, it: 0, write: 0 },
     stage: 'child', spec: null,
     publications: 0, topPubs: 0, discoveries: 0, grants: 0,
