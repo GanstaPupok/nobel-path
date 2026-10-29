@@ -1,8 +1,6 @@
-import { S, addLog, saveState } from './state.js';
+import { S, addLog, saveState, Legacy, saveLegacy } from './state.js';
 import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
-import { clamp } from './utils.js';
-import { S, addLog, saveState, Legacy, saveLegacy } from './state.js'; // <-- ДОБАВИТЬ Legacy и saveLegacy
 
 export const FINALS = {
   nobel:{title:'🥇 Нобелевский лауреат!',desc:'Ты достиг вершин науки. Твоё имя в учебниках.',color:'var(--gold)'},
