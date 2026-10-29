@@ -4,6 +4,7 @@ import { render } from './render.js';
 import { playSound } from '../audio.js';
 import { SKILL_TREE, ACHIEVEMENTS } from '../config.js';
 import { buyPerk, canBuyPerk } from '../skills.js';
+import { ACHIEVEMENT_GROUPS, achievementProgress } from '../achievements.js';
 import { g } from '../text.js';
 import { chronicleByAge, chronCount } from '../chronicle.js';
 
@@ -79,24 +80,76 @@ function renderSkillTree(app, m) {
   });
 }
 
+let achievementTab = 'science';
+
 function renderAchievements(app, m) {
   const unlocked = new Set(S.achievements);
+  const entries = Object.entries(ACHIEVEMENTS);
+  const total = entries.length;
+  const got = entries.filter(([id]) => unlocked.has(id)).length;
+  const pct = total ? Math.round(got / total * 100) : 0;
+
+  const groups = Object.keys(ACHIEVEMENT_GROUPS);
+  if (!groups.includes(achievementTab)) achievementTab = groups[0];
+
+  const countIn = g => entries.filter(([id, a]) => a.group === g && unlocked.has(id)).length;
+  const totalIn = g => entries.filter(([, a]) => a.group === g).length;
+
+  const rows = entries
+    .filter(([, a]) => a.group === achievementTab)
+    .map(([id, a]) => {
+      const isOpen = unlocked.has(id);
+      const date = S.achievementDates && S.achievementDates[id];
+      const prog = isOpen ? null : achievementProgress(id);
+      return `
+        <div class="ach-row ${isOpen ? 'unlocked' : 'locked'}">
+          <div class="ach-row-icon">${a.icon}</div>
+          <div class="ach-row-body">
+            <div class="ach-row-top">
+              <span class="ach-row-name">${escapeHtml(a.name)}</span>
+              ${isOpen && date ? `<span class="ach-row-age">в ${date} лет</span>` : ''}
+            </div>
+            <div class="ach-row-desc">${escapeHtml(a.desc || '')}</div>
+            ${prog ? `<div class="ach-row-progress">
+              <div class="ach-row-bar"><div style="width:${prog.pct}%"></div></div>
+              <span>${prog.cur}/${prog.max}</span>
+            </div>` : ''}
+          </div>
+          <div class="ach-row-mark">${isOpen ? '✓' : '🔒'}</div>
+        </div>`;
+    }).join('');
+
   app.innerHTML = `
     <div class="modal-bg">
       <div class="modal tree-modal">
         <h2>${escapeHtml(m.title)}</h2>
-        <p>${escapeHtml(m.desc)}</p>
-        <div class="ach-grid" id="achGrid"></div>
+        <div class="ach-summary">
+          <div class="ach-summary-top">
+            <span>Открыто <b>${got}</b> из ${total}</span>
+            <span class="ach-summary-pct">${pct}%</span>
+          </div>
+          <div class="ach-summary-bar"><div style="width:${pct}%"></div></div>
+        </div>
+        <div class="ach-tabs">
+          ${groups.map(g => `
+            <button class="ach-tab ${g === achievementTab ? 'active' : ''}" data-group="${g}">
+              ${ACHIEVEMENT_GROUPS[g].icon} ${ACHIEVEMENT_GROUPS[g].title}
+              <span class="ach-tab-count">${countIn(g)}/${totalIn(g)}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="ach-list-rows">${rows}</div>
         <button class="modal-close" id="closeAch">Закрыть</button>
       </div>
     </div>
   `;
-  document.getElementById('achGrid').innerHTML = Object.entries(ACHIEVEMENTS).map(([id, a]) => `
-    <div class="ach-cell ${unlocked.has(id) ? 'unlocked' : 'locked'}">
-      <span class="ach-icon">${a.icon}</span>
-      <span class="ach-name">${unlocked.has(id) ? a.name : '???'}</span>
-    </div>
-  `).join('');
+
+  app.querySelectorAll('.ach-tab').forEach(tab => {
+    tab.onclick = () => {
+      achievementTab = tab.dataset.group;
+      render();
+    };
+  });
 
   document.getElementById('closeAch').onclick = () => {
     S.pendingModal = null;

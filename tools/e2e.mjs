@@ -239,9 +239,11 @@ await sleep(200);
 // ---------- Достижения ----------
 const achOpened = await evalJs(`(() => {
   document.getElementById('achBtn').click();
-  return document.querySelectorAll('.ach-cell').length;
+  return document.querySelectorAll('.ach-row').length;
 })()`);
-check('экран достижений открывается', achOpened > 20, `${achOpened} ячеек`);
+check('экран достижений открывается', achOpened > 10, `${achOpened} строк`);
+check('у достижений есть прогресс и подсказки', await evalJs(`document.querySelectorAll('.ach-row-progress').length > 0 && document.querySelectorAll('.ach-row-desc').length > 0`));
+check('вкладки достижений работают', await evalJs(`document.querySelectorAll('.ach-tab').length === 4`));
 await click('#closeAch');
 await sleep(200);
 

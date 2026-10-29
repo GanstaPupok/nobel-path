@@ -36,7 +36,7 @@ export function freshState() {
     position: 'школьник', actedThisYear: 0,
     log: [], pendingEvent: null, pendingModal: null, pendingCinema: null,
     finalReached: false, final: null,
-    achievements: [], flags: {}, started: false,
+    achievements: [], achievementDates: {}, flags: {}, started: false,
     dailyLife: null, dailyLifeSeen: false, dailyStreak: { good: 0, bad: 0 },
     backstory: null,
     arcs: { love: null, rival: null, family: null, mentor: null, friend: null, hater: null, coauthor: null, hobby: null },
@@ -88,6 +88,7 @@ function migrate(raw) {
   s.chronicle = Array.isArray(s.chronicle) ? s.chronicle : [];
   if (s.track && typeof s.track !== 'string') s.track = null;
   s.achievements = Array.isArray(s.achievements) ? s.achievements : [];
+  if (!s.achievementDates || typeof s.achievementDates !== 'object') s.achievementDates = {};
   s.log = Array.isArray(s.log) ? s.log : [];
   s.quests = Array.isArray(s.quests) ? s.quests : [];
   s.minigameDone = Object.assign({ quiz: 0, puzzle: 0, defense: 0, spot: 0 }, s.minigameDone || {});
