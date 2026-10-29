@@ -1,7 +1,6 @@
 import { S, saveState } from '../state.js';
 import { playSound } from '../audio.js';
 import { addAchievement } from '../achievements.js';
-import { showMinigameResult } from './index.js';
 
 const QUIZ_POOL = [
   {q:'Сколько планет в Солнечной системе?', a:['7','8','9','10'], correct:1},
