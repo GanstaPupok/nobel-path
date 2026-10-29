@@ -22,19 +22,37 @@ export function checkFinal(){
   else if(S.int<30 && S.publications<2)S.final='loser';
   else S.final='teacher';
   
+  // Анализ личности (Титул)
+  let title = 'Обычный учёный';
+  if (S.arcs.love && S.arcs.love.stage === 'married' && S.arcs.family && S.arcs.family.stage === 'kid') {
+    title = 'Семейный профессор';
+  } else if (S.arcs.love && S.arcs.love.stage === 'married' && S.money > 5000000) {
+    title = 'Профессор-миллионер';
+  } else if (S.discoveries >= 5 && (!S.arcs.love || S.arcs.love.stage !== 'married')) {
+    title = 'Одинокий гений';
+  } else if (S.arcs.hobby && S.arcs.hobby.stage === 'active') {
+    title = 'Творческий учёный';
+  } else if (S.enemies >= 5) {
+    title = 'Интриган от науки';
+  } else if (S.health < 30) {
+    title = 'Загнанная лошадь';
+  }
+  S.personaTitle = title;
+
   addLog('🏁 Жизнь подошла к финалу.');
   playSound('final');
 
   // --- НАЧИСЛЕНИЕ НАСЛЕДИЯ ---
-  let pointsEarned = 50; // База за любое прохождение
-  pointsEarned += S.achievements.length * 10; // +10 за каждую ачивку
+  let pointsEarned = 50; 
+  pointsEarned += S.achievements.length * 10; 
   pointsEarned += S.publications * 5;
-  pointsEarned += Math.floor(S.money / 100000); // 1 очко за каждые 100к денег
+  pointsEarned += Math.floor(S.money / 100000); 
   if (S.final === 'nobel') pointsEarned += 100;
+  if (S.arcs.family && S.arcs.family.stage === 'kid') pointsEarned += 30; // Бонус за семью
   
   Legacy.points += pointsEarned;
   saveLegacy();
-  S.earnedLegacy = pointsEarned; // Запоминаем для финального экрана
+  S.earnedLegacy = pointsEarned;
 
   saveState();
 }
