@@ -70,6 +70,8 @@ export function initState(){
   if(!S.legacyUpgrades) S.legacyUpgrades={};
   if(S.skillPoints === undefined) S.skillPoints = 0;
   if(!S.boughtPerks) S.boughtPerks = [];
+  if(S.activeGlobalEvent === undefined) S.activeGlobalEvent = null;
+  if(S.globalEventYearsLeft === undefined) S.globalEventYearsLeft = 0;
   
   saveState();
 }
