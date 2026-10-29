@@ -2,7 +2,10 @@
 // (друг, хейтер, соавтор, хобби). Каждая большая арка проходит 5-6 стадий
 // и заканчивается последствием в финале.
 
-const CHILD_NAMES = ['Миша', 'Саша', 'Лена', 'Тимур', 'Вера', 'Костя'];
+const CHILDREN = [
+  { name: 'Миша', g: 'm' }, { name: 'Тимур', g: 'm' }, { name: 'Костя', g: 'm' },
+  { name: 'Лена', g: 'f' }, { name: 'Вера', g: 'f' }, { name: 'Саша', g: 'f' }
+];
 const MENTORS = ['профессор Лихачёв', 'профессор Соколова', 'профессор Гринберг'];
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -132,11 +135,12 @@ export const arcEvents = [
     rareId: 'family_start',
     opts: [
       { t: '👶 Согласиться', f: (ctx) => {
-        const child = pick(CHILD_NAMES);
-        ctx.setArc('family', { stage: 'kid', years: 0, childName: child, bond: 65 });
+        const child = pick(CHILDREN);
+        ctx.setArc('family', { stage: 'kid', years: 0, childName: child.name, childGender: child.g, bond: 65 });
         ctx.money = Math.max(0, ctx.money - 15000); ctx.stress += 5;
         ctx.ach('parent'); ctx.ach('parent_arc');
-        ctx.log(`👶 Родился ${child}!`); ctx.sound('levelup');
+        ctx.log(child.g === 'f' ? `👶 Родилась ${child.name}!` : `👶 Родился ${child.name}!`);
+        ctx.sound('levelup');
       } },
       { t: '🚶 Отложить', f: (ctx) => { ctx.bump('love', 'love', -8); ctx.log('Вы решили подождать.'); ctx.sound('click'); } }
     ]
@@ -166,7 +170,7 @@ export const arcEvents = [
       } },
       { t: '🔬 Направить в науку', f: (ctx) => {
         ctx.advance('family', 'teen', { childTalent: 'science' }); ctx.bump('family', 'bond', -5); ctx.int += 2;
-        ctx.log('Ты решил, что ребёнок пойдёт в науку. Он не спорил.'); ctx.sound('click');
+        ctx.log('Ты решил, что ребёнок пойдёт в науку. Возражений не было.'); ctx.sound('click');
       } },
       { t: '🚶 Пусть сам решает', f: (ctx) => { ctx.advance('family', 'teen'); ctx.bump('family', 'bond', -10); ctx.log('Ты не стал вмешиваться.'); ctx.sound('click'); } }
     ]
@@ -181,7 +185,7 @@ export const arcEvents = [
         ctx.log('Вы проговорили всю ночь.'); ctx.sound('success');
       } },
       { t: '📏 Наказать', f: (ctx) => { ctx.advance('family', 'adult'); ctx.bump('family', 'bond', -15); ctx.stress += 5; ctx.log('Дисциплина победила, близость — нет.'); ctx.sound('fail'); } },
-      { t: '🚪 Отпустить', f: (ctx) => { ctx.advance('family', 'adult'); ctx.bump('family', 'bond', -5); ctx.stress = Math.max(0, ctx.stress - 5); ctx.log('Ты дал ему свободу.'); ctx.sound('click'); } }
+      { t: '🚪 Отпустить', f: (ctx) => { ctx.advance('family', 'adult'); ctx.bump('family', 'bond', -5); ctx.stress = Math.max(0, ctx.stress - 5); ctx.log('Ты дал свободу — и это оказалось верно.'); ctx.sound('click'); } }
     ]
   },
   {
@@ -198,7 +202,7 @@ export const arcEvents = [
         ctx.ach('arc_family'); ctx.log('Ребёнок выбрал деньги, но вас это не разделило.'); ctx.sound('coin');
       } },
       { t: '✈️ Уехал за границу', f: (ctx) => {
-        ctx.advance('family', 'legacy'); ctx.bump('family', 'bond', -10); ctx.log('Он далеко. Но звонит по воскресеньям.'); ctx.sound('click');
+        ctx.advance('family', 'legacy'); ctx.bump('family', 'bond', -10); ctx.log('Далеко, но звонит по воскресеньям.'); ctx.sound('click');
       } }
     ]
   },
@@ -308,7 +312,7 @@ export const arcEvents = [
       { t: '🎓 Согласиться', f: (ctx) => {
         const name = pick(MENTORS);
         ctx.setArc('mentor', { name, stage: 'found', years: 0, bond: 60 });
-        ctx.int += 3; ctx.log(`${name} взял тебя под крыло.`); ctx.sound('success');
+        ctx.int += 3; ctx.log(`${name} теперь твой научный руководитель.`); ctx.sound('success');
       } },
       { t: '🚶 Работать самостоятельно', f: (ctx) => {
         ctx.int += 4; ctx.stress += 5; ctx.log('Ты решил ни от кого не зависеть.'); ctx.sound('click');
@@ -326,7 +330,7 @@ export const arcEvents = [
       } },
       { t: '🚫 Отказаться', f: (ctx) => {
         ctx.advance('mentor', 'tested'); ctx.bump('mentor', 'bond', -15); ctx.stress += 5;
-        ctx.log('Он обиделся, но ты сохранил своё время.'); ctx.sound('fail');
+        ctx.log('Обида осталась, но время ты сохранил.'); ctx.sound('fail');
       } }
     ]
   },
@@ -362,17 +366,17 @@ export const arcEvents = [
     ]
   },
   {
-    text: 'Наставник ушёл. На поминках его вдова передаёт тебе ключи от лаборатории.',
+    text: 'Наставника не стало. На поминках близкие передают тебе ключи от лаборатории.',
     when: { arc: 'mentor', arcStage: 'ill', minAge: 50 },
     rareId: 'mentor_legacy',
     opts: [
       { t: '🔑 Принять лабораторию', f: (ctx) => {
         ctx.advance('mentor', 'legacy'); ctx.influence += 10; ctx.rep = Math.min(100, ctx.rep + 15);
-        ctx.ach('mentor'); ctx.log('Ты продолжил его дело. Лаборатория теперь твоя.'); ctx.sound('levelup');
+        ctx.ach('mentor'); ctx.log('Ты продолжил дело наставника. Лаборатория теперь твоя.'); ctx.sound('levelup');
       } },
       { t: '📚 Передать школе его имя', f: (ctx) => {
         ctx.advance('mentor', 'legacy'); ctx.rep = Math.min(100, ctx.rep + 8); ctx.influence += 5;
-        ctx.log('Ты назвал научную школу его именем.'); ctx.sound('success');
+        ctx.log('Ты назвал научную школу именем наставника.'); ctx.sound('success');
       } }
     ]
   },

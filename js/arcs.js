@@ -71,11 +71,13 @@ export function getArcCards() {
 
   if (a.family) {
     const c = a.family.childName || 'Ребёнок';
+    const girl = a.family.childGender === 'f';
+    const v = (m, f) => (girl ? f : m);
     const stageText = {
-      kid: `${c} ещё маленький — нужны деньги и время.`,
-      school: `${c} пошёл в школу.`,
-      teen: `${c} — подросток, с ним непросто.`,
-      adult: `${c} вырос и выбрал свой путь.`,
+      kid: `${c} ещё ${v('маленький', 'маленькая')} — нужны деньги и время.`,
+      school: `${c} ${v('пошёл', 'пошла')} в школу.`,
+      teen: `${c} — в трудном возрасте, ссоры по вечерам.`,
+      adult: `${c} ${v('вырос', 'выросла')} и ${v('выбрал', 'выбрала')} свой путь.`,
       legacy: `${c} продолжает твоё дело.`
     }[a.family.stage] || `${c} рядом.`;
     cards.push({ icon: '👶', color: 'var(--pink)', text: `${stageText} Связь: ${Math.round(a.family.bond || 0)}/100` });
@@ -98,7 +100,7 @@ export function getArcCards() {
   if (a.mentor) {
     const m = a.mentor.name || 'наставник';
     const text = {
-      found: `${m} взял тебя под крыло.`,
+      found: `${m} — твой научный руководитель.`,
       tested: `${m} проверяет тебя на прочность.`,
       supported: `${m} продвигает твои работы.`,
       ill: `${m} болеет — ты рядом.`,
@@ -134,7 +136,9 @@ export function arcSummary() {
     else if (a.love.stage === 'divorced') out.push(`${p.icon} ${p.name}: развод`);
   }
   if (a.family && a.family.childName) {
-    out.push(`👶 ${a.family.childName}${a.family.stage === 'adult' || a.family.stage === 'legacy' ? ' — взрослый' : ''}`);
+    const grown = a.family.stage === 'adult' || a.family.stage === 'legacy';
+    const word = a.family.childGender === 'f' ? 'взрослая' : 'взрослый';
+    out.push(`👶 ${a.family.childName}${grown ? ' — ' + word : ''}`);
   }
   if (a.rival) {
     const st = a.rival.stage;
