@@ -141,4 +141,16 @@ export const commonEvents = [
       {t:'🚶 Отказаться',f:(ctx)=>{ctx.log('Отказ.');ctx.sound('click');}}
     ]
   }
+  {
+    text:'Твой недоброжелатель в институте написал донос на тебя.',
+    when:{minAge:30, stage:'career'},
+    cond:(ctx)=>ctx.enemies > 0,
+    opts:[
+      {t:'⚖️ Оправдаться (харизма)',f:(ctx)=>{
+        if(ctx.charm > 30) { ctx.log('⚖️ Ты оправдался. Враги не прошли.'); ctx.sound('success'); }
+        else { ctx.rep -= 10; ctx.log('💀 Донос сработал. −10 репутации.'); ctx.sound('fail'); }
+      }},
+      {t:'🤐 Промолчать',f:(ctx)=>{ ctx.rep -= 5; ctx.enemies -= 1; ctx.log('🤐 Ты промолчал. Враг успокоился.'); ctx.sound('click'); }}
+    ]
+  }
 ];
