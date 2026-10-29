@@ -179,10 +179,13 @@ export function getActions(){
       const target=next[S.position];
       if(!target){addLog('Уже на вершине.');return;}
       const r=req[target];
-      if(S.rep>=r.rep&&S.charm>=r.charm){
+     
+      // При утечке мозгов требования к репутации снижаются на 20%
+      const reqRep = Math.floor(r.rep * getGlobalModifier('rep'));
+      if(S.rep>=reqRep && S.charm>=r.charm){
         S.position=target;addLog(`🎉 Теперь ты ${target}.`);playSound('levelup');
         if(target==='директор НИИ')addAchievement('director');
-      }else{addLog(`❌ Отказ (нужно ${r.rep}/${r.charm}).`);playSound('fail');}
+      }else{addLog(`❌ Отказ (нужно репутация ${reqRep}, харизма ${r.charm}).`);playSound('fail');}
       S.stress=clamp(S.stress+5,0,100);
     });
     add('🧑‍🏫 Читать лекции','Харизма +3, деньги +8000',1,()=>{
