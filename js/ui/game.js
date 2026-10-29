@@ -10,6 +10,8 @@ import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
 import { getAvailableTreeBranch } from '../tree.js';
 import { rollDailyLife } from '../daily.js';
+import { S, saveState, addLog } from '../state.js';
+import { SKILLS, SKILL_NAMES, SPEC_NAMES, STAGES, BACKSTORIES, GLOBAL_EVENTS } from '../config.js';
 
 export function getAvatar(){
   const arr = S.gender==='m' ? ['🧒','👦','🧑','👨','🧑‍🎓','🧑‍🔬','👨‍🔬','👨‍🏫','👨‍💼','👴']
@@ -53,7 +55,17 @@ export function renderGame(app){
         ${bs?`<div class="bs-tag">${bs.icon} ${bs.title}</div>`:''}
       </div>
     </div>
-
+    
+    ${S.activeGlobalEvent ? `
+      <div class="daily-card" style="border-color:var(--red); background:linear-gradient(135deg, rgba(248,81,73,0.15), rgba(233,69,96,0.1));">
+        <div class="daily-icon">${GLOBAL_EVENTS[S.activeGlobalEvent].icon}</div>
+        <div class="daily-text">
+          <b>Мировое событие: ${GLOBAL_EVENTS[S.activeGlobalEvent].title}</b>
+          <br><span style="color:var(--muted);font-size:12px">${GLOBAL_EVENTS[S.activeGlobalEvent].desc} (осталось лет: ${S.globalEventYearsLeft})</span>
+        </div>
+      </div>
+    ` : ''}
+    
     ${S.dailyLife?`
       <div class="daily-card">
         <div class="daily-icon">${S.dailyLife.icon}</div>
