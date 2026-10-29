@@ -140,7 +140,7 @@ export const commonEvents = [
       }},
       {t:'🚶 Отказаться',f:(ctx)=>{ctx.log('Отказ.');ctx.sound('click');}}
     ]
-  }
+  },
   {
     text:'Твой недоброжелатель в институте написал донос на тебя.',
     when:{minAge:30, stage:'career'},
