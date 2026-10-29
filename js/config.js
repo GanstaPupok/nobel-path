@@ -107,6 +107,30 @@ export const PROJECTS = {
 // Сколько прогресса проекта даёт одно действие (зависит от лучшего навыка)
 export const PROJECT_PROGRESS = { base: 22, perSkill: 6 };
 
+// ============================================================
+// ЛАБОРАТОРИЯ — куда тратить деньги
+// ============================================================
+export const LAB = {
+  equipment: {
+    id: 'equipment', icon: '🔬', title: 'Оборудование',
+    desc: '+10% к прогрессу темы за уровень',
+    maxLevel: 3,
+    levels: [{ cost: 60000 }, { cost: 150000 }, { cost: 300000 }]
+  },
+  computer: {
+    id: 'computer', icon: '💻', title: 'Суперкомпьютер',
+    desc: '+1 к броскам экспериментов за уровень',
+    maxLevel: 3,
+    levels: [{ cost: 80000 }, { cost: 200000 }, { cost: 400000 }]
+  },
+  setup: {
+    id: 'setup', icon: '🏛️', title: 'Своя лаборатория',
+    desc: '+1 энергия каждый год',
+    maxLevel: 1,
+    levels: [{ cost: 500000 }]
+  }
+};
+
 // Условия «нобелевского» финала — нужен завершённый проект и серьёзные показатели
 export const NOBEL = { rep: 95, int: 95, discoveries: 7, publications: 12 };
 

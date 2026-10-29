@@ -133,6 +133,27 @@ async function clearOverlays() {
 
 const save = () => evalJs(`(()=>{const r=localStorage.getItem('nobel_path_v6');return r?JSON.parse(r):null})()`);
 
+/** Даёт запас энергии, чтобы тест мог нажать следующее действие. */
+async function refillEnergy() {
+  await evalJs(`(() => {
+    const s = JSON.parse(localStorage.getItem('nobel_path_v6') || 'null');
+    if (!s) return;
+    s.energy = 6; s.actedThisYear = 0;
+    localStorage.setItem('nobel_path_v6', JSON.stringify(s));
+    location.reload();
+  })()`);
+  await sleep(1100);
+}
+
+/** Закрывает обучение, если оно открыто. */
+async function dismissTutorial() {
+  for (let i = 0; i < 8; i++) {
+    const gone = await evalJs(`(() => { const s = document.getElementById('tutSkip'); if (s) { s.click(); return false; } return true; })()`);
+    if (gone) return;
+    await sleep(180);
+  }
+}
+
 /** Закрывает кинематографичную вставку, если она на экране. */
 async function dismissCinema() {
   const had = await evalJs(`(() => { const c = document.querySelector('.cinema'); if (c) { c.click(); return true; } return false; })()`);
@@ -182,6 +203,9 @@ await evalJs(`(() => {
 check('кнопка старта активна после выбора', await evalJs(`!document.getElementById('startBtn').disabled`));
 await click('#startBtn');
 await sleep(600);
+check('обучение показывается новичку', await evalJs(`!!document.querySelector('.tutorial-modal')`));
+await dismissTutorial();
+await sleep(300);
 
 check('игровой экран отрисован', await evalJs(`!!document.querySelector('.hero')`));
 const actionCount = await evalJs(`document.querySelectorAll('#actions button').length`);
@@ -336,7 +360,32 @@ const projectAfter = (await save())?.project;
 check('действие двигает проект вперёд', projectAfter && (projectAfter.progress > projectBefore || projectAfter.tier > 0),
   `прогресс ${projectBefore} → ${projectAfter?.progress}, этап ${projectAfter?.tier}`);
 
+// ---------- Лаборатория ----------
+await refillEnergy();
+await evalJs(`(() => {
+  const tab = [...document.querySelectorAll('.action-tab')].find(t => t.textContent.includes('Карьера'));
+  if (tab) tab.click();
+})()`);
+await sleep(200);
+const labOpened = await evalJs(`(() => {
+  const b = [...document.querySelectorAll('#actions button')].find(x => x.textContent.includes('Лаборатория'));
+  if (!b) return 0;
+  b.click();
+  return document.querySelectorAll('.modal .opt').length;
+})()`);
+check('лаборатория открывается', labOpened >= 2, `${labOpened} улучшений`);
+const labBefore = (await save())?.lab?.equipment || 0;
+await evalJs(`(() => {
+  const opt = [...document.querySelectorAll('.modal .opt')].find(o => o.textContent.includes('Оборудование'));
+  if (opt) opt.click();
+})()`);
+await sleep(400);
+await clearOverlays();
+const labAfter = (await save())?.lab?.equipment || 0;
+check('улучшение лаборатории покупается', labAfter === labBefore + 1, `уровень ${labBefore} → ${labAfter}`);
+
 // ---------- Выбор журнала ----------
+await refillEnergy();
 await evalJs(`(() => {
   const tab = [...document.querySelectorAll('.action-tab')].find(t => t.textContent.includes('Наука'));
   if (tab) tab.click();
@@ -371,10 +420,24 @@ await clearOverlays();
 await click('.end-year');
 await sleep(700);
 check('финальная сцена показывается', await evalJs(`!!document.querySelector('.cinema')`));
+await dismissCinema();
 check('финальный экран показан', await evalJs(`!!document.querySelector('.final')`),
   await evalJs(`document.querySelector('.final h2')?.textContent || 'нет'`));
 check('эпилог рассказывает историю', await evalJs(`document.querySelectorAll('.epilogue p').length >= 3`),
   `${await evalJs(`document.querySelectorAll('.epilogue p').length`)} абзацев`);
+await dismissCinema();
+const cardOpened = await evalJs(`(() => {
+  const b = document.getElementById('cardBtn');
+  if (!b) return -1;
+  b.click();
+  const img = document.querySelector('.life-card-img');
+  return img ? img.naturalWidth : 0;
+})()`);
+await sleep(500);
+const cardWidth = await evalJs(`document.querySelector('.life-card-img')?.naturalWidth || 0`);
+check('карточка жизни рисуется', cardWidth > 0, `ширина ${cardWidth}px`);
+await click('#closeCard');
+await sleep(200);
 check('финал показывает наследие', await evalJs(`/Наследи/.test(document.querySelector('.final')?.textContent||'')`));
 const legacyAfter = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}')`);
 check('наследие начислено за жизнь', (legacyAfter.points || 0) > 350, `${legacyAfter.points} ОН`);
@@ -415,6 +478,7 @@ check('стартовый экран предлагает ребёнка', await
   await evalJs(`document.querySelector('.dynasty-card b')?.textContent || 'нет'`));
 await click('#dynastyStart');
 await sleep(900);
+await dismissTutorial();
 const dyn = await save();
 check('жизнь за ребёнка началась', dyn && dyn.started && dyn.backstory === 'dynasty' && dyn.name === 'Миша',
   `${dyn?.name || '?'}, предыстория ${dyn?.backstory || '?'}`);
@@ -428,6 +492,7 @@ await evalJs(`localStorage.removeItem('nobel_path_v6'); localStorage.removeItem(
 await sleep(1300);
 await click('#dailyBtn');
 await sleep(800);
+await dismissTutorial();
 const daily = await save();
 check('испытание дня запускается', daily && daily.daily && daily.started, daily?.daily?.date || 'нет даты');
 check('бейдж испытания виден', await evalJs(`!!document.querySelector('.daily-badge')`));

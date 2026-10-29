@@ -5,6 +5,7 @@ import { playSound } from '../audio.js';
 import { SKILL_TREE, ACHIEVEMENTS } from '../config.js';
 import { buyPerk, canBuyPerk } from '../skills.js';
 import { ACHIEVEMENT_GROUPS, achievementProgress } from '../achievements.js';
+import { TUTORIAL_STEPS, markTutorialSeen } from '../tutorial.js';
 import { g } from '../text.js';
 import { chronicleByAge, chronCount } from '../chronicle.js';
 
@@ -15,6 +16,8 @@ export function renderModal(app) {
   if (m.isSkillTree) return renderSkillTree(app, m);
   if (m.isAchievements) return renderAchievements(app, m);
   if (m.isChronicle) return renderChronicle(app, m);
+  if (m.isTutorial) return renderTutorial(app, m);
+  if (m.isLifeCard) return renderLifeCard(app, m);
 
   app.innerHTML = `
     <div class="modal-bg">
@@ -154,6 +157,66 @@ function renderAchievements(app, m) {
   document.getElementById('closeAch').onclick = () => {
     S.pendingModal = null;
     saveState();
+    render();
+  };
+}
+
+function renderLifeCard(app, m) {
+  app.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal card-modal">
+        <h2>📸 Карточка жизни</h2>
+        ${m.image
+          ? `<img class="life-card-img" src="${m.image}" alt="Карточка жизни">`
+          : '<p>Не удалось нарисовать карточку.</p>'}
+        <div class="card-actions">
+          ${m.image ? `<a class="card-download" id="cardDownload" download="nobel-path.png" href="${m.image}">Скачать PNG</a>` : ''}
+          <button class="modal-close" id="closeCard">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('closeCard').onclick = () => {
+    S.pendingModal = null;
+    saveState();
+    render();
+  };
+}
+
+function renderTutorial(app, m) {
+  const step = Math.max(0, Math.min(TUTORIAL_STEPS.length - 1, m.step || 0));
+  const item = TUTORIAL_STEPS[step];
+  const last = step === TUTORIAL_STEPS.length - 1;
+
+  app.innerHTML = `
+    <div class="modal-bg">
+      <div class="modal tutorial-modal">
+        <div class="tut-progress">
+          ${TUTORIAL_STEPS.map((_, i) => `<span class="tut-dot ${i <= step ? 'on' : ''}"></span>`).join('')}
+          <span class="tut-counter">${step + 1} / ${TUTORIAL_STEPS.length}</span>
+        </div>
+        <div class="tut-icon">${item.icon}</div>
+        <h2>${escapeHtml(item.title)}</h2>
+        <p>${escapeHtml(item.text)}</p>
+        <div class="tut-actions">
+          <button class="tut-skip" id="tutSkip">Пропустить</button>
+          <button class="tut-next" id="tutNext">${last ? 'Начать' : 'Далее'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const finish = () => {
+    markTutorialSeen();
+    S.pendingModal = null;
+    saveState();
+    render();
+  };
+
+  document.getElementById('tutSkip').onclick = finish;
+  document.getElementById('tutNext').onclick = () => {
+    if (last) return finish();
+    S.pendingModal = { isTutorial: true, step: step + 1 };
     render();
   };
 }

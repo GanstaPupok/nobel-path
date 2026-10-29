@@ -53,7 +53,8 @@ export function addProjectProgress(amount) {
 
   const messages = [];
   const mult = S.track && TRACKS[S.track] ? TRACKS[S.track].projectMult : 1;
-  const delta = amount > 0 ? Math.round(amount * mult) : amount;
+  const labMult = 1 + 0.1 * ((S.lab && S.lab.equipment) || 0);
+  const delta = amount > 0 ? Math.round(amount * mult * labMult) : amount;
   S.project.progress = Math.max(0, S.project.progress + delta);
 
   while (S.project.tier < def.tiers.length) {

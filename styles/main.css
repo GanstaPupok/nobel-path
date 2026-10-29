@@ -673,6 +673,44 @@ button.end-year:hover:not(:disabled){filter:brightness(1.07);box-shadow:0 12px 2
 .ach-row.locked .ach-row-mark{color:var(--muted);font-size:12px}
 
 /* ============================================================
+   ОБУЧЕНИЕ, КАРТОЧКА ЖИЗНИ
+   ============================================================ */
+.tutorial-modal{max-width:480px;text-align:center}
+.tut-progress{display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:16px}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:var(--panel3)}
+.tut-dot.on{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 8px rgba(124,92,255,.7)}
+.tut-counter{font-size:10.5px;color:var(--muted);margin-left:8px}
+.tut-icon{font-size:56px;line-height:1;margin-bottom:10px;
+  filter:drop-shadow(0 8px 20px rgba(124,92,255,.35));animation:cinemaIcon .9s cubic-bezier(.34,1.56,.64,1)}
+.tutorial-modal h2{margin:0 0 10px;font-size:21px}
+.tutorial-modal p{font-size:13.5px;line-height:1.6;color:var(--muted);margin:0 0 18px}
+.tut-actions{display:flex;gap:8px}
+.tut-skip{flex:1;background:var(--panel2);border:1px solid var(--border);box-shadow:none;
+  text-align:center;color:var(--muted);min-height:auto;padding:12px}
+.tut-skip:hover{background:var(--panel3);color:var(--text)}
+.tut-next{flex:2;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  border:none;text-align:center;font-weight:700;min-height:auto;padding:12px}
+.tut-next:hover{filter:brightness(1.07);transform:translateY(-1px)}
+
+.final .card-btn{
+  background:var(--panel2);color:var(--text);border:1px solid var(--border);
+  margin-top:14px;padding:13px 24px;border-radius:14px;font-size:14px;font-weight:700;
+  box-shadow:none;width:100%;
+}
+.final .card-btn:hover{background:var(--panel3);transform:translateY(-1px)}
+
+.card-modal{max-width:560px;text-align:center}
+.life-card-img{width:100%;display:block;border-radius:16px;border:1px solid var(--border);
+  margin:6px 0 14px;box-shadow:var(--shadow-soft)}
+.card-actions{display:flex;flex-direction:column;gap:8px}
+.card-download{
+  display:block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;
+  padding:12px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;text-align:center;
+  box-shadow:0 8px 20px rgba(124,92,255,.35);
+}
+.card-download:hover{filter:brightness(1.08)}
+
+/* ============================================================
    АНИМАЦИИ И АДАПТИВ
    ============================================================ */
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}

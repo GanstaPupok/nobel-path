@@ -30,6 +30,7 @@ export function endYear() {
     + (S.health > ENERGY.healthBonus ? 1 : 0)
     + (S.charm > ENERGY.charmBonus ? 1 : 0)
     + ((S.boughtPerks || []).includes('workaholic') ? 1 : 0)
+    + ((S.lab && S.lab.setup) || 0)
     + (S.energyBonus || 0);
 
   // Бытовые расходы. Дети живут с родителями и аренду не платят.

@@ -8,6 +8,7 @@ import { renderActions } from './render.js';
 import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
+import { openTutorial } from '../tutorial.js';
 
 export function getAvatar() {
   const m = ['🧒', '👦', '🧑', '👨', '🧑‍🎓', '🧑‍🔬', '👨‍🔬', '👨‍🏫', '👨‍💼', '👴'];
@@ -105,6 +106,7 @@ export function renderGame(app) {
       <button id="treeBtn" class="badge-btn ${S.skillPoints > 0 ? 'has-points' : ''}" title="Дерево навыков">🌳 ${S.skillPoints}</button>
       <button id="achBtn" class="badge-btn" title="Достижения">🏅 ${S.achievements.length}</button>
       <button id="chronBtn" class="badge-btn" title="Хроника жизни">📜 ${(S.chronicle || []).length}</button>
+      <button id="helpBtn" title="Как играть">❓</button>
       <button id="resetBtn" title="Начать заново">🔄</button>
     </div>
 
@@ -208,6 +210,7 @@ export function renderGame(app) {
     S.pendingModal = { isChronicle: true, title: '📜 Хроника жизни' };
     render();
   };
+  document.getElementById('helpBtn').onclick = () => openTutorial(0);
   document.getElementById('resetBtn').onclick = () => {
     if (confirm('Начать жизнь заново? Наследие сохранится.')) newLife();
   };

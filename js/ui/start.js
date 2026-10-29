@@ -8,6 +8,7 @@ import { clamp, escapeHtml, formatMoney } from '../utils.js';
 import { render } from './render.js';
 import { chronicle } from '../chronicle.js';
 import { todayKey, dailySeed, todayResult, seedRandom } from '../dailychallenge.js';
+import { maybeShowTutorial } from '../tutorial.js';
 
 export function renderStart(app) {
   app.innerHTML = `
@@ -188,6 +189,7 @@ export function renderStart(app) {
     S.avatarSeed = Math.random();
     S.started = true;
     addLog(`Ты родился! Имя: ${S.name}. Предыстория: ${BACKSTORIES[chosenBs].title}.`);
+    maybeShowTutorial();
     chronicle('👶', `Рождение: ${BACKSTORIES[chosenBs].title}`);
     const perks = Object.keys(Legacy.upgrades || {}).length;
     if (perks > 0) addLog('🌀 Наследие предков помогло тебе на старте.');
@@ -232,6 +234,7 @@ function startDaily() {
   });
   applyBackstory();
   addLog('🎯 Испытание дня: одна жизнь, одинаковые события для всех.');
+  maybeShowTutorial();
   chronicle('🎯', `Испытание дня ${date}`);
   rollDailyLife();
   S.dailyLifeSeen = true;
@@ -264,6 +267,7 @@ function startDynasty() {
 
   const role = nc.gender === 'f' ? 'дочь' : 'сын';
   addLog(`Ты — ${nc.name}, ${role} ${nc.parentName}. Династия продолжается.`);
+  maybeShowTutorial();
   chronicle('👨‍👩‍👧', `Поколение ${Legacy.generation}: ${nc.name}`);
   rollDailyLife();
   S.dailyLifeSeen = true;

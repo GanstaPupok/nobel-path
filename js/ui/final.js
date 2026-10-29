@@ -10,6 +10,7 @@ import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
 import { g } from '../text.js';
 import { todayResult, shareText } from '../dailychallenge.js';
+import { buildLifeCard } from '../sharecard.js';
 
 export function renderFinal(app) {
   const f = FINALS[S.final] || FINALS.teacher;
@@ -72,6 +73,7 @@ export function renderFinal(app) {
       ${badges ? `<h3 class="final-ach-title">🏅 Достижения (${S.achievements.length})</h3>
         <div class="ach-list">${badges}</div>` : ''}
 
+      <button id="cardBtn" class="card-btn">📸 Карточка жизни</button>
       ${child ? `<button id="dynastyBtn" class="dynasty-btn">👶 Продолжить династию: ${escapeHtml(child)}</button>` : ''}
       <button id="resetBtn">🔄 Начать новую жизнь</button>
     </div>
@@ -79,6 +81,10 @@ export function renderFinal(app) {
   document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
   document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
   document.getElementById('resetBtn').onclick = () => newLife();
+  document.getElementById('cardBtn').onclick = () => {
+    S.pendingModal = { isLifeCard: true, image: buildLifeCard() };
+    render();
+  };
   const shareBtn = document.getElementById('shareDaily');
   if (shareBtn && daily) {
     shareBtn.onclick = async () => {

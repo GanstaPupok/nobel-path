@@ -17,8 +17,8 @@ export function render() {
   const app = document.getElementById('app');
   if (!app) return;
   if (!S.started) renderStart(app);
-  else if (S.finalReached) renderFinal(app);
   else if (S.pendingModal) renderModal(app);
+  else if (S.finalReached) renderFinal(app);
   else if (S.pendingEvent) renderEvent(app);
   else renderGame(app);
   consumeCinema();

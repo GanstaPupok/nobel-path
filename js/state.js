@@ -6,7 +6,7 @@ const LEGACY_KEY = 'nobel_path_legacy';
 export let S;
 // Наследие — межсессионная мета-прогрессия.
 // upgrades: { perkId: level } — купленные улучшения сохраняются навсегда.
-export let Legacy = { points: 0, upgrades: {}, runs: 0, version: SAVE_VERSION };
+export let Legacy = { points: 0, upgrades: {}, runs: 0, tutorialSeen: false, version: SAVE_VERSION };
 
 export function loadLegacy() {
   try {
@@ -19,6 +19,7 @@ export function loadLegacy() {
   if (!Legacy.upgrades || typeof Legacy.upgrades !== 'object') Legacy.upgrades = {};
   if (!Number.isFinite(Legacy.points)) Legacy.points = 0;
   if (!Number.isFinite(Legacy.runs)) Legacy.runs = 0;
+  if (typeof Legacy.tutorialSeen !== 'boolean') Legacy.tutorialSeen = false;
 }
 
 export function saveLegacy() {
@@ -45,6 +46,7 @@ export function freshState() {
     chronicle: [],
     track: null,
     project: null,
+    lab: { equipment: 0, computer: 0, setup: 0 },
     daily: null,
     eventsThisYear: 0,
     yearCount: 0,
@@ -84,6 +86,7 @@ function migrate(raw) {
   s.eventsThisYear = Number.isFinite(s.eventsThisYear) ? s.eventsThisYear : 0;
   if (s.project && typeof s.project !== 'object') s.project = null;
   if (s.daily && typeof s.daily !== 'object') s.daily = null;
+  s.lab = Object.assign({ equipment: 0, computer: 0, setup: 0 }, s.lab || {});
   s.milestones = Array.isArray(s.milestones) ? s.milestones : [];
   s.chronicle = Array.isArray(s.chronicle) ? s.chronicle : [];
   if (s.track && typeof s.track !== 'string') s.track = null;

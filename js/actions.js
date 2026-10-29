@@ -8,6 +8,7 @@ import { addSkillPoint } from './skills.js';
 import { chronicle } from './chronicle.js';
 import { currentTier, addProjectProgress, progressPerAction, startProjectForSpec, projectDef } from './project.js';
 import { JOURNAL_TIERS, canSubmit, submitPaper } from './publishing.js';
+import { openLab, labOptions, labSummary } from './lab.js';
 
 function rndSkill() { return SKILLS[Math.floor(Math.random() * SKILLS.length)]; }
 const d20 = () => Math.floor(Math.random() * 20) + 1;
@@ -158,7 +159,7 @@ export function getActions() {
     projectAction('science');
     add('💥 Провести эксперимент', 'Риск! Открытие или провал', 1, () => {
       S.money -= 3000;
-      const bonus = Math.floor(S.int / 12) + (S.spec ? 2 : 0);
+      const bonus = Math.floor(S.int / 12) + (S.spec ? 2 : 0) + ((S.lab && S.lab.computer) || 0);
       const roll = d20() + Math.round(bonus * getGlobalModifier('discoveryChance'));
       S.stress = clamp(S.stress + 12, 0, 100);
       if (roll > 17) {
@@ -241,7 +242,7 @@ export function getActions() {
 
     add('🌌 Big Science', 'Высокий риск и награда', 1, () => {
       S.money -= 15000;
-      const bonus = Math.floor(S.int / 15) + Math.floor(S.rep / 15) + (S.spec ? 2 : 0);
+      const bonus = Math.floor(S.int / 15) + Math.floor(S.rep / 15) + (S.spec ? 2 : 0) + ((S.lab && S.lab.computer) || 0);
       const roll = d20() + Math.round(bonus * getGlobalModifier('discoveryChance'));
       S.stress = clamp(S.stress + 20, 0, 100);
       if (roll > 24) {
@@ -359,6 +360,9 @@ export function getActions() {
         }
         S.stress = clamp(S.stress + 5, 0, 100);
       }, 'special', { req: !!step, reqText: 'максимальная должность', group: 'career' });
+
+    add('🏗️ Лаборатория', labSummary(), 1, () => { openLab(); }, 'special',
+      { group: 'career', req: labOptions().length > 0, reqText: 'всё оборудовано' });
 
     add('📈 Инвестировать', 'Риск: ×3 / ×0 / −50%', 1, () => {
       const sum = Math.min(S.money, 50000);
