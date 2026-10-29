@@ -2,6 +2,7 @@ import { S, addLog, saveState } from './state.js';
 import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { clamp } from './utils.js';
+import { S, addLog, saveState, Legacy, saveLegacy } from './state.js'; // <-- ДОБАВИТЬ Legacy и saveLegacy
 
 export const FINALS = {
   nobel:{title:'🥇 Нобелевский лауреат!',desc:'Ты достиг вершин науки. Твоё имя в учебниках.',color:'var(--gold)'},
@@ -22,7 +23,20 @@ export function checkFinal(){
   else if(S.stress>=90)S.final='burnout';
   else if(S.int<30 && S.publications<2)S.final='loser';
   else S.final='teacher';
+  
   addLog('🏁 Жизнь подошла к финалу.');
   playSound('final');
+
+  // --- НАЧИСЛЕНИЕ НАСЛЕДИЯ ---
+  let pointsEarned = 50; // База за любое прохождение
+  pointsEarned += S.achievements.length * 10; // +10 за каждую ачивку
+  pointsEarned += S.publications * 5;
+  pointsEarned += Math.floor(S.money / 100000); // 1 очко за каждые 100к денег
+  if (S.final === 'nobel') pointsEarned += 100;
+  
+  Legacy.points += pointsEarned;
+  saveLegacy();
+  S.earnedLegacy = pointsEarned; // Запоминаем для финального экрана
+
   saveState();
 }
