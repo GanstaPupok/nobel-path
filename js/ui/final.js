@@ -9,6 +9,7 @@ import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
 import { g } from '../text.js';
+import { todayResult, shareText } from '../dailychallenge.js';
 
 export function renderFinal(app) {
   const f = FINALS[S.final] || FINALS.teacher;
@@ -16,6 +17,7 @@ export function renderFinal(app) {
   const life = arcSummary();
   const epilogue = buildEpilogue();
   const child = S.arcs && S.arcs.family ? S.arcs.family.childName : null;
+  const daily = S.daily ? todayResult() : null;
   const badges = S.achievements
     .map(id => ACHIEVEMENTS[id])
     .filter(Boolean)
@@ -34,6 +36,13 @@ export function renderFinal(app) {
       <div class="desc">${escapeHtml(g(f.desc))}</div>
 
       <div class="persona">🏅 Титул: ${escapeHtml(S.personaTitle || 'Учёный')}</div>
+
+      ${daily ? `<div class="daily-result">
+        <h3>🎯 Испытание дня</h3>
+        <div class="daily-result-score">${daily.score} очков</div>
+        <p class="muted small">${escapeHtml(daily.final)} · публикаций ${daily.publications} · открытий ${daily.discoveries} · достижений ${daily.achievements}</p>
+        <button class="daily-share" id="shareDaily">Скопировать результат</button>
+      </div>` : ''}
 
       ${epilogue.length ? `<div class="epilogue">
         <h3>Эпилог</h3>
@@ -70,6 +79,18 @@ export function renderFinal(app) {
   document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
   document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
   document.getElementById('resetBtn').onclick = () => newLife();
+  const shareBtn = document.getElementById('shareDaily');
+  if (shareBtn && daily) {
+    shareBtn.onclick = async () => {
+      const text = shareText(daily);
+      try {
+        await navigator.clipboard.writeText(text);
+        shareBtn.textContent = 'Скопировано ✓';
+      } catch (e) {
+        shareBtn.textContent = text;
+      }
+    };
+  }
   if (child) {
     document.getElementById('dynastyBtn').onclick = () => {
       Legacy.nextChild = {

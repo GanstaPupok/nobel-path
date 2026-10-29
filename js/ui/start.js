@@ -1,5 +1,5 @@
 import { BACKSTORIES, LEGACY_PERKS } from '../config.js';
-import { S, saveState, addLog, Legacy, saveLegacy } from '../state.js';
+import { S, saveState, addLog, Legacy, saveLegacy, newState } from '../state.js';
 import { playSound, isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { renderBonusTags, applyBackstory } from '../backstory.js';
@@ -7,6 +7,7 @@ import { rollDailyLife } from '../daily.js';
 import { clamp, escapeHtml, formatMoney } from '../utils.js';
 import { render } from './render.js';
 import { chronicle } from '../chronicle.js';
+import { todayKey, dailySeed, todayResult, seedRandom } from '../dailychallenge.js';
 
 export function renderStart(app) {
   app.innerHTML = `
@@ -33,6 +34,18 @@ export function renderStart(app) {
       <p class="hint">С чего начнётся твоя жизнь? Это повлияет на всё.
         ${Legacy.runs ? `<br><span class="muted small">Прожито жизней: ${Legacy.runs}${Legacy.generation > 1 ? ` · поколение ${Legacy.generation}` : ''}</span>` : ''}
       </p>
+
+      <div class="daily-challenge">
+        <div class="daily-challenge-head">
+          <b>🎯 Испытание дня</b>
+          <span>${todayKey()}</span>
+        </div>
+        <p class="hint small">Одна жизнь для всех: события и броски совпадают у всех игроков. Сравни результат с друзьями.</p>
+        ${todayResult()
+          ? `<div class="daily-challenge-best">Сегодня: ${escapeHtml(todayResult().final)} · ${todayResult().score} очков</div>
+             <button class="daily-btn" id="dailyBtn" disabled>Сегодня пройдено</button>`
+          : `<button class="daily-btn" id="dailyBtn">Пройти испытание</button>`}
+      </div>
 
       <div class="field">
         <label>Имя</label>
@@ -67,6 +80,10 @@ export function renderStart(app) {
 
   document.getElementById('soundBtn').onclick = () => { toggleSound(); render(); };
   document.getElementById('themeBtn').onclick = () => { toggleTheme(); render(); };
+
+  // Ежедневное испытание
+  const dailyBtn = document.getElementById('dailyBtn');
+  if (dailyBtn) dailyBtn.onclick = () => startDaily();
 
   // Династия: продолжить жизнь ребёнка
   const dynastyBtn = document.getElementById('dynastyStart');
@@ -200,6 +217,27 @@ function applyLegacyUpgrades() {
       }
     }
   }
+}
+
+// Ежедневное испытание: фиксированный сид, без наследия.
+function startDaily() {
+  const date = todayKey();
+  seedRandom(dailySeed(date));
+  newState({
+    name: 'Игрок',
+    gender: 'm',
+    backstory: 'worker',
+    started: true,
+    daily: { date, seed: dailySeed(date) }
+  });
+  applyBackstory();
+  addLog('🎯 Испытание дня: одна жизнь, одинаковые события для всех.');
+  chronicle('🎯', `Испытание дня ${date}`);
+  rollDailyLife();
+  S.dailyLifeSeen = true;
+  playSound('levelup');
+  saveState();
+  render();
 }
 
 // Новая жизнь за ребёнка героя: наследуются гены, деньги и имя.

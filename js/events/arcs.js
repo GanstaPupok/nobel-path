@@ -65,6 +65,7 @@ export const arcEvents = [
         if (ctx.money < 20000) { ctx.log('Денег нет — отложил.'); ctx.sound('fail'); return; }
         ctx.money -= 20000; ctx.advance('love', 'married', { years: 0 });
         ctx.chronicle('💍', 'Свадьба');
+        ctx.cinema({ kind: 'love', icon: '💍', title: 'Свадьба', subtitle: 'Теперь вы одна семья.' });
         ctx.bump('love', 'love', 10);
         ctx.ach('married'); ctx.ach('arc_love');
         ctx.log('💍 Вы поженились!'); ctx.sound('levelup');
@@ -141,6 +142,7 @@ export const arcEvents = [
         ctx.setArc('family', { stage: 'kid', years: 0, childName: child.name, childGender: child.g, bond: 65 });
         ctx.money = Math.max(0, ctx.money - 15000); ctx.stress += 5;
         ctx.chronicle('👶', child.g === 'f' ? `Родилась ${child.name}` : `Родился ${child.name}`);
+        ctx.cinema({ kind: 'family', icon: '👶', title: child.g === 'f' ? `Родилась ${child.name}` : `Родился ${child.name}`, subtitle: 'Жизнь больше не будет прежней.' });
         ctx.ach('parent'); ctx.ach('parent_arc');
         ctx.log(child.g === 'f' ? `👶 Родилась ${child.name}!` : `👶 Родился ${child.name}!`);
         ctx.sound('levelup');

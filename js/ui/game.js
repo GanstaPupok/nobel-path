@@ -115,6 +115,7 @@ export function renderGame(app) {
         <div class="role">${escapeHtml(S.position)}${S.spec ? ' · ' + SPEC_NAMES[S.spec] : ''}${S.track && TRACKS[S.track] ? ' · ' + TRACKS[S.track].short : ''}</div>
         <div class="stage"><span>Этап: ${STAGES[S.stage]?.name || '—'}</span><span class="pips">${pips}</span></div>
         <div class="goal">${getGoal()}</div>
+        ${S.daily ? `<div class="daily-badge">🎯 Испытание дня ${escapeHtml(S.daily.date)}</div>` : ''}
         ${bs ? `<div class="bs-tag">${bs.icon} ${bs.title}</div>` : ''}
       </div>
     </div>

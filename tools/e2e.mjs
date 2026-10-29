@@ -133,6 +133,12 @@ async function clearOverlays() {
 
 const save = () => evalJs(`(()=>{const r=localStorage.getItem('nobel_path_v6');return r?JSON.parse(r):null})()`);
 
+/** Закрывает кинематографичную вставку, если она на экране. */
+async function dismissCinema() {
+  const had = await evalJs(`(() => { const c = document.querySelector('.cinema'); if (c) { c.click(); return true; } return false; })()`);
+  if (had) await sleep(500);
+}
+
 /** Ждёт появления элемента — GitHub Pages иногда отвечает медленнее локального сервера. */
 async function waitFor(selector, timeout = 15000) {
   const started = Date.now();
@@ -152,6 +158,7 @@ check('стартовый экран отрисован', await evalJs(`!!docume
 const cards = await evalJs(`document.querySelectorAll('.backstory-card').length`);
 check('карточки предысторий', cards === 6, `${cards} шт.`);
 check('кнопка старта заблокирована без выбора', await evalJs(`document.getElementById('startBtn').disabled`));
+check('есть испытание дня', await evalJs(`!!document.getElementById('dailyBtn')`));
 
 // ---------- Наследие ----------
 await evalJs(`localStorage.setItem('nobel_path_legacy', JSON.stringify({points:500, upgrades:{}, runs:0})); location.reload();`);
@@ -361,6 +368,7 @@ await sleep(1100);
 await clearOverlays();
 await click('.end-year');
 await sleep(700);
+check('финальная сцена показывается', await evalJs(`!!document.querySelector('.cinema')`));
 check('финальный экран показан', await evalJs(`!!document.querySelector('.final')`),
   await evalJs(`document.querySelector('.final h2')?.textContent || 'нет'`));
 check('эпилог рассказывает историю', await evalJs(`document.querySelectorAll('.epilogue p').length >= 3`),
@@ -368,6 +376,7 @@ check('эпилог рассказывает историю', await evalJs(`docu
 check('финал показывает наследие', await evalJs(`/Наследи/.test(document.querySelector('.final')?.textContent||'')`));
 const legacyAfter = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}')`);
 check('наследие начислено за жизнь', (legacyAfter.points || 0) > 350, `${legacyAfter.points} ОН`);
+await dismissCinema();
 
 // ---------- Новая жизнь ----------
 await click('#resetBtn');
@@ -396,6 +405,7 @@ await evalJs(`(() => {
   location.reload();
 })()`);
 await sleep(1400);
+await dismissCinema();
 check('финал предлагает продолжить династию', await evalJs(`!!document.getElementById('dynastyBtn')`));
 await click('#dynastyBtn');
 await sleep(1200);
@@ -410,6 +420,15 @@ check('наследство передано', (dyn?.int || 0) > 5 && (dyn?.mone
   `интеллект ${dyn?.int}, деньги ${dyn?.money}`);
 const gen = await evalJs(`JSON.parse(localStorage.getItem('nobel_path_legacy') || '{}').generation`);
 check('поколение увеличилось', gen === 2, `поколение ${gen}`);
+
+// ---------- Испытание дня ----------
+await evalJs(`localStorage.removeItem('nobel_path_v6'); localStorage.removeItem('nobel_path_daily'); location.reload()`);
+await sleep(1300);
+await click('#dailyBtn');
+await sleep(800);
+const daily = await save();
+check('испытание дня запускается', daily && daily.daily && daily.started, daily?.daily?.date || 'нет даты');
+check('бейдж испытания виден', await evalJs(`!!document.querySelector('.daily-badge')`));
 
 // ---------- PWA ----------
 check('манифест подключён', await evalJs(`!!document.querySelector('link[rel="manifest"]')`));

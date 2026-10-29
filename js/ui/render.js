@@ -11,15 +11,25 @@ import { getAvailableTreeBranch, applyTreeChoice } from '../tree.js';
 import { endYear } from '../year.js';
 import { MINIGAMES } from '../minigames/index.js';
 import { playSound } from '../audio.js';
+import { playCinema } from '../cinema.js';
 
 export function render() {
   const app = document.getElementById('app');
   if (!app) return;
-  if (!S.started) return renderStart(app);
-  if (S.finalReached) return renderFinal(app);
-  if (S.pendingModal) return renderModal(app);
-  if (S.pendingEvent) return renderEvent(app);
-  return renderGame(app);
+  if (!S.started) renderStart(app);
+  else if (S.finalReached) renderFinal(app);
+  else if (S.pendingModal) renderModal(app);
+  else if (S.pendingEvent) renderEvent(app);
+  else renderGame(app);
+  consumeCinema();
+}
+
+/** Показывает отложенную кинематографичную вставку (если она есть). */
+function consumeCinema() {
+  if (!S.pendingCinema) return;
+  const data = S.pendingCinema;
+  S.pendingCinema = null;
+  playCinema(data);
 }
 
 /** Вызывается после любого действия игрока: события, выборы, достижения. */

@@ -34,7 +34,7 @@ export function freshState() {
     stage: 'child', spec: null,
     publications: 0, topPubs: 0, discoveries: 0, grants: 0,
     position: 'школьник', actedThisYear: 0,
-    log: [], pendingEvent: null, pendingModal: null,
+    log: [], pendingEvent: null, pendingModal: null, pendingCinema: null,
     finalReached: false, final: null,
     achievements: [], flags: {}, started: false,
     dailyLife: null, dailyLifeSeen: false, dailyStreak: { good: 0, bad: 0 },
@@ -45,6 +45,7 @@ export function freshState() {
     chronicle: [],
     track: null,
     project: null,
+    daily: null,
     eventsThisYear: 0,
     yearCount: 0,
     quests: [],
@@ -82,6 +83,7 @@ function migrate(raw) {
   s.energyBonus = Number.isFinite(s.energyBonus) ? s.energyBonus : 0;
   s.eventsThisYear = Number.isFinite(s.eventsThisYear) ? s.eventsThisYear : 0;
   if (s.project && typeof s.project !== 'object') s.project = null;
+  if (s.daily && typeof s.daily !== 'object') s.daily = null;
   s.milestones = Array.isArray(s.milestones) ? s.milestones : [];
   s.chronicle = Array.isArray(s.chronicle) ? s.chronicle : [];
   if (s.track && typeof s.track !== 'string') s.track = null;
@@ -116,6 +118,7 @@ function migrate(raw) {
   // События и модалки содержат функции — после перезагрузки их не восстановить.
   s.pendingEvent = null;
   s.pendingModal = null;
+  s.pendingCinema = null;
 
   // Квесты хранятся как данные; шаблоны подтягиваются по id в quests.js.
   s.quests = s.quests
@@ -141,6 +144,7 @@ export function snapshot() {
     version: SAVE_VERSION,
     pendingEvent: null,
     pendingModal: null,
+    pendingCinema: null,
     quests: (S.quests || []).map(q => ({
       id: q.id,
       startAge: q.startAge,
@@ -148,6 +152,16 @@ export function snapshot() {
       deadlineAge: q.deadlineAge
     }))
   });
+}
+
+/**
+ * Полностью заменяет состояние новой жизнью (используется ежедневным
+ * испытанием, где нельзя опираться на случайный прогресс).
+ */
+export function newState(overrides = {}) {
+  S = Object.assign(freshState(), overrides);
+  saveState();
+  return S;
 }
 
 export function saveState() {

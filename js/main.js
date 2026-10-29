@@ -1,4 +1,5 @@
-import { initState } from './state.js';
+import { S, initState } from './state.js';
+import { seedRandom } from './dailychallenge.js';
 import { applyTheme } from './theme.js';
 import { render } from './ui/render.js';
 
@@ -7,6 +8,9 @@ applyTheme();
 
 // Инициализируем состояние
 initState();
+
+// Если идёт ежедневное испытание — восстанавливаем его сид
+if (S.daily) seedRandom(`${S.daily.seed}:${S.year}`);
 
 // Запускаем рендер
 render();

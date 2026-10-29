@@ -13,6 +13,7 @@ import { checkMilestones } from './events/milestones.js';
 import { rollEvent } from './events/engine.js';
 import { startProjectForSpec } from './project.js';
 import { chronicle } from './chronicle.js';
+import { queueCinema } from './cinema.js';
 
 export function rentForAge(age) {
   const row = RENT.find(r => age <= r.maxAge);
@@ -133,6 +134,7 @@ export function advanceStage() {
   if (S.stage === 'child' && S.age >= GATES.uni.age) {
     if (S.int >= GATES.uni.int) {
       S.stage = 'uni'; S.position = 'студент';
+      queueCinema({ kind: 'success', icon: '🎓', title: 'Ты в вузе', subtitle: 'Начинается другая жизнь.' });
       chronicle('🎓', 'Поступил в вуз');
       addLog('🎓 Ты поступил в вуз!');
       playSound('levelup');
@@ -154,6 +156,7 @@ export function advanceStage() {
   if (S.stage === 'uni' && S.age >= GATES.phd.age) {
     if (S.int >= GATES.phd.int && S.publications >= GATES.phd.publications) {
       S.stage = 'phd'; S.position = 'аспирант';
+      queueCinema({ kind: 'success', icon: '🔬', title: 'Аспирантура', subtitle: 'Теперь ты делаешь науку сам.' });
       chronicle('🎓', 'Поступил в аспирантуру');
       addLog('🎓 Ты поступил в аспирантуру!');
       addAchievement('first_pub');
@@ -172,6 +175,7 @@ export function advanceStage() {
     S.stage = 'career';
     if (S.discoveries >= GATES.career.discoveries) {
       S.position = 'м.н.с.';
+      queueCinema({ kind: 'success', icon: '📜', title: 'Защита прошла', subtitle: 'Ты младший научный сотрудник.' });
       chronicle('🎓', 'Защитил диссертацию');
       addLog('🎓 Защита прошла! Ты младший научный сотрудник.');
       playSound('levelup');

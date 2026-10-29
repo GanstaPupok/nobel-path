@@ -4,6 +4,7 @@ import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { clamp } from './utils.js';
 import { chronicle } from './chronicle.js';
+import { queueCinema } from './cinema.js';
 
 /** Описание текущего проекта или null. */
 export function projectDef() {
@@ -69,6 +70,7 @@ export function addProjectProgress(amount) {
 
     if (S.project.tier >= def.tiers.length) {
       S.flags.projectDone = true;
+      queueCinema({ kind: 'nobel', icon: '🚀', title: 'Тема закрыта', subtitle: `«${def.title}» — три этапа пройдены.` });
       chronicle('🚀', `Тема «${def.title}» закрыта целиком`);
       S.rep = clamp(S.rep + 10, 0, 100);
       addAchievement('project_done');

@@ -4,6 +4,7 @@ import { playSound } from '../audio.js';
 import { addAchievement } from '../achievements.js';
 import { addProjectProgress } from '../project.js';
 import { chronicle } from '../chronicle.js';
+import { queueCinema } from '../cinema.js';
 
 /**
  * Контекст события — обёртки над состоянием игры.
@@ -36,6 +37,7 @@ export function makeCtx() {
     sound: (n) => playSound(n),
     ach: (id) => addAchievement(id),
     chronicle: (icon, text) => chronicle(icon, text),
+    cinema: (data) => queueCinema(data),
     projectProgress: (n) => { addProjectProgress(n).forEach(m => addLog(m)); },
     setArc: (name, data) => { S.arcs[name] = data; },
     arc: (name) => S.arcs[name],

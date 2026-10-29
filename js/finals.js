@@ -3,6 +3,8 @@ import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { NOBEL } from './config.js';
 import { chronicle } from './chronicle.js';
+import { queueCinema } from './cinema.js';
+import { saveDailyResult } from './dailychallenge.js';
 
 export const FINALS = {
   nobel: { title: '🥇 Нобелевский лауреат!', desc: 'Ты достиг вершин науки. Твоё имя в учебниках.', color: 'var(--gold)' },
@@ -29,6 +31,7 @@ export function checkFinal() {
   else S.final = 'teacher';
 
   S.finalReached = true;
+  queueFinalCinema();
   chronicle('🏁', FINALS[S.final] ? FINALS[S.final].title : 'Финал жизни');
   if (S.final === 'nobel') addAchievement('nobel');
 
@@ -60,7 +63,25 @@ export function checkFinal() {
   saveLegacy();
   S.earnedLegacy = points;
 
+  if (S.daily) saveDailyResult(S);
+
   saveState();
+}
+
+function queueFinalCinema() {
+  const info = FINALS[S.final];
+  if (!info) return;
+  const match = info.title.match(/^(\S+)\s+(.*)$/);
+  const icon = match ? match[1] : '🏁';
+  const title = match ? match[2] : info.title;
+  const sad = S.final === 'death' || S.final === 'burnout' || S.final === 'loser';
+  queueCinema({
+    kind: S.final === 'nobel' ? 'nobel' : (sad ? 'sad' : 'success'),
+    icon,
+    title,
+    subtitle: info.desc,
+    duration: S.final === 'nobel' ? 3600 : 2800
+  });
 }
 
 function pickPersona() {
