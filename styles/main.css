@@ -220,3 +220,30 @@ button.end-year:hover:not(:disabled){box-shadow:0 4px 16px rgba(63,185,80,0.5)}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
 }
+/* ДЕРЕВО НАВЫКОВ */
+.tree-modal { max-width: 700px; }
+.tree-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.tree-node {
+  background: var(--panel2); border: 2px solid var(--border);
+  border-radius: 12px; padding: 12px; cursor: pointer;
+  transition: all .2s; position: relative;
+}
+.tree-node:hover { border-color: var(--gold); transform: translateY(-2px); }
+.tree-node.bought { border-color: var(--green); background: rgba(63, 185, 80, 0.1); }
+.tree-node.locked { opacity: 0.5; cursor: not-allowed; }
+.tree-node h4 { margin: 0 0 4px; color: var(--gold); font-size: 14px; }
+.tree-node p { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.4; }
+.tree-node .cost { display: inline-block; background: var(--purple); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-top: 8px; }
+.tree-node.bought .cost { background: var(--green); }
+.tree-points-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, var(--purple), #c084fc);
+  color: #fff; padding: 6px 14px; border-radius: 20px;
+  font-weight: 700; font-size: 13px; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(163,113,247,0.3);
+  border: none;
+}
+.tree-points-badge:hover { transform: scale(1.05); }
