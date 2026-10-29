@@ -3,6 +3,7 @@ import { playSound } from './audio.js';
 import { addAchievement } from './achievements.js';
 import { clamp } from './utils.js';
 import { SKILLS } from './config.js';
+import { addSkillPoint } from './skills.js';
 
 function rndSkill(){ return SKILLS[Math.floor(Math.random()*SKILLS.length)]; }
 const d20 = ()=>Math.floor(Math.random()*20)+1;
