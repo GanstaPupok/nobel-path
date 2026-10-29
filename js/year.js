@@ -6,6 +6,7 @@ import { checkFinal } from './finals.js';
 import { rollDailyLife } from './daily.js';
 import { tickQuests, maybeAddQuest } from './quests.js';
 import { checkTreeConsequences } from './tree.js';
+import { checkGlobalEvents } from './world.js';
 
 export function endYear(){
   S.age++; S.year++; S.yearCount++;
@@ -17,6 +18,7 @@ export function endYear(){
 
   tickArcs();
   tickQuests();
+  checkGlobalEvents();
   maybeAddQuest();
 
   // Проверка последствий древа
