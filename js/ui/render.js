@@ -66,7 +66,18 @@ export function renderActions(){
     };
     container.appendChild(b);
   });
-
+  
+  // Кнопка дерева навыков
+  if (S.skillPoints > 0) {
+    const st = document.createElement('button');
+    st.className = 'special';
+    st.innerHTML = `🌳 Дерево навыков<small>Доступно очков: ${S.skillPoints} · не тратит энергию</small>`;
+    st.onclick = () => {
+      import('../skills.js').then(m => m.openSkillTree());
+    };
+    container.appendChild(st);
+  }
+  
   // Кнопка мини-игры
   const mg = document.createElement('button');
   mg.className = 'quest';
