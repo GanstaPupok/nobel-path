@@ -37,9 +37,9 @@ export function freshState(){
     treeChoices:{},
     legacyUpgrades: {},
     skillPoints: 0,
-    boughtPerks: []
+    boughtPerks: [],
     activeGlobalEvent: null,
-    globalEventYearsLeft: 0,
+    globalEventYearsLeft: 0
   };
 }
 
