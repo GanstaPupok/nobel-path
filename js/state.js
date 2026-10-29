@@ -32,9 +32,9 @@ export function freshState(){
     rareSeen:[],
     milestones:[],
     yearCount:0,
-    quests:[],            // активные микро-квесты
+    quests:[],
     minigameDone:{quiz:0,puzzle:0,defense:0},
-    treeChoices:{}        // выборы в древе решений
+    treeChoices:{},
     legacyUpgrades: {}
   };
 }
@@ -63,6 +63,7 @@ export function initState(){
   if(!S.quests) S.quests=[];
   if(!S.minigameDone) S.minigameDone={quiz:0,puzzle:0,defense:0};
   if(!S.treeChoices) S.treeChoices={};
+  if(!S.legacyUpgrades) S.legacyUpgrades={};
   saveState();
 }
 
