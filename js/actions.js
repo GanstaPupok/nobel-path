@@ -105,13 +105,13 @@ export function getActions(){
       else{S.rep=clamp(S.rep-5,0,100);addLog('💀 Провал.');playSound('fail');}
     },'danger');
     add('📝 Написать статью','Публикация, если хватает навыка',1,()=>{
-      S.stress=clamp(S.stress+5,0,100);
+      S.stress = clamp(S.stress + (S.flags.geniusPub ? 0 : 5), 0, 100);;
       if(S.skills.write>10){S.publications++;S.rep=clamp(S.rep+5,0,100);addLog('📝 Статья!');if(S.publications===1)addAchievement('first_pub');playSound('success');}
       else{addLog('Отвергли.');playSound('fail');}
     });
     add('💰 Грантрайтинг','Шанс получить грант',1,()=>{
       const roll=d20()+Math.floor(S.charm/10);
-      if(roll>12){S.money+=50000;S.rep=clamp(S.rep+5,0,100);S.grants++;addLog('💰 Грант! +50 000 ₽');addAchievement('first_grant');playSound('coin');}
+      if(roll>12){S.money += S.flags.luckyGrants ? 100000 : 50000;;S.rep=clamp(S.rep+5,0,100);S.grants++;addLog('💰 Грант! +50 000 ₽');addAchievement('first_grant');playSound('coin');}
       else{addLog('Отказ.');playSound('fail');}
       S.stress=clamp(S.stress+5,0,100);
     });
