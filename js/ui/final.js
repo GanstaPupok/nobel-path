@@ -6,6 +6,7 @@ import { getAvatar, statHTML } from './game.js';
 import { isSoundOn, toggleSound } from '../audio.js';
 import { getTheme, toggleTheme } from '../theme.js';
 import { render } from './render.js';
+import { S, Legacy } from '../state.js';
 
 export function renderFinal(app){
   const f = FINALS[S.final];
@@ -19,7 +20,13 @@ export function renderFinal(app){
       <div style="font-size:80px;margin-bottom:16px;animation:pulse 2s ease-in-out infinite">${getAvatar()}</div>
       <h2 style="color:${f.color}">${f.title}</h2>
       ${bs?`<p style="color:var(--muted);font-size:13px">${bs.icon} ${bs.title}</p>`:''}
-      <div class="desc">${f.desc}</div>
+      <div class="desc">${f.desc}</div    
+      <!-- НОВЫЙ БЛОК -->
+      <div style="background:rgba(163,113,247,0.15); border:1px solid var(--purple); border-radius:12px; padding:12px; margin-bottom:20px;">
+        <h3 style="color:var(--purple); margin:0 0 8px; font-size:18px;">🌀 Получено Наследия: +${S.earnedLegacy || 0} ОН</h3>
+        <p style="color:var(--muted); font-size:12px; margin:0;">Всего накоплено: <b>${Legacy.points}</b> ОН. Эти очки можно потратить при следующем рождении!</p>
+      </div>
+      <!-- КОНЕЦ БЛОКА -->
       <div class="summary">
         ${statHTML('Возраст',S.age)}
         ${statHTML('Интеллект',S.int)}
