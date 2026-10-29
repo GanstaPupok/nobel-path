@@ -92,6 +92,8 @@ export function renderGame(app){
       ${statHTML('Деньги',formatMoney(S.money))}
       ${statHTML('Публикаций',S.publications)}
       ${statHTML('Открытий',S.discoveries)}
+      ${statHTML('Влияние',S.influence, S.influence, 20, 'var(--blue)')}
+      ${statHTML('Враги',S.enemies, S.enemies, 10, 'var(--red)')}
     </div>
 
     <div class="skills">
