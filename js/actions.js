@@ -182,6 +182,14 @@ export function getActions(){
      
       // При утечке мозгов требования к репутации снижаются на 20%
       const reqRep = Math.floor(r.rep * getGlobalModifier('rep'));
+      
+            // Проверка на происки врагов
+      if (S.enemies >= 3 && Math.random() < (S.enemies * 0.1)) {
+        addLog(`❌ Враги в институте подставили тебя! Повышение сорвано.`);
+        S.stress = clamp(S.stress + 15, 0, 100);
+        playSound('fail');
+        return; // Выходим, повышение не удалось
+      }
       if(S.rep>=reqRep && S.charm>=r.charm){
         S.position=target;addLog(`🎉 Теперь ты ${target}.`);playSound('levelup');
         if(target==='директор НИИ')addAchievement('director');
@@ -194,6 +202,34 @@ export function getActions(){
     add('🏖️ Отпуск','Стресс −30, здоровье +5',1,()=>{
       S.stress=clamp(S.stress-30,0,100);S.health=clamp(S.health+5,0,100);addLog('Отпуск.');playSound('click');
     },'safe');
+        // --- ПОЛИТИКА В НИИ ---
+    add('🏛️ Плести интриги', 'Влияние +2, Враги +1', 1, ()=>{
+      S.influence += 2;
+      S.enemies += 1;
+      addLog('🏛️ Ты начал плести интриги в институте.');
+      playSound('click');
+    });
+
+    add('🤝 Наладить связи', 'Влияние +3, стресс −5', 1, ()=>{
+      S.influence += 3;
+      S.stress = clamp(S.stress - 5, 0, 100);
+      addLog('🤝 Ты наладил полезные связи.');
+      playSound('success');
+    }, 'safe');
+
+    add('🧑‍🏫 Создать научную школу', 'Требует 10 Влияния. Репутация +10, +1 навык', 1, ()=>{
+      if(S.influence >= 10){
+        S.influence -= 10;
+        S.rep = clamp(S.rep + 10, 0, 100);
+        S.skills[rndSkill()] += 5;
+        addLog('🧑‍🏫 Ты создал свою научную школу!');
+        addAchievement('mentor'); // если есть такая ачивка
+        playSound('success');
+      } else {
+        addLog('❌ Не хватает влияния (нужно 10).');
+        playSound('fail');
+      }
+    }, 'special');
   }
 
   return acts;
