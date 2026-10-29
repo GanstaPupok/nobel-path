@@ -11,15 +11,17 @@ import { checkGlobalEvents, getGlobalModifier } from './world.js';
 export function endYear(){
   S.age++; S.year++; S.yearCount++;
   S.actedThisYear = 0;
+  S.minigamesThisYear = 0; // Сброс лимита мини-игр
   S.energy = 3 + (S.health>70?1:0) + (S.charm>70?1:0);
-  const rent = 2000 / getGlobalModifier('salary'); // при кризисе жилье дешевле (или наоборот)
+  
+  const rent = 2000 / getGlobalModifier('salary');
   S.money = Math.max(0, S.money - rent);
-    S.stress = clamp(S.stress + (5 * getGlobalModifier('stress')) - 10, 0, 100); 
-    
-  // Влияние пандемии на здоровье
+  S.stress = clamp(S.stress + (5 * getGlobalModifier('stress')) - 10, 0, 100); 
+  
+  // Влияние пандемии
   if (S.activeGlobalEvent === 'pandemic') {
     S.health = clamp(S.health - 5, 0, 100);
-    if (Math.random() < 0.3) addLog('🦠 Ты переболел в пандемию. Здоровье пошатнулось.');
+    if (Math.random() < 0.3) addLog('🦠 Ты переболел в пандемию.');
   }
 
   if(S.stress > 80){ S.health = clamp(S.health - 10, 0, 100); addLog('⚠️ Высокий стресс подорвал здоровье.'); }
@@ -29,7 +31,6 @@ export function endYear(){
   checkGlobalEvents();
   maybeAddQuest();
 
-  // Проверка последствий древа
   const treeMsg = checkTreeConsequences();
   if(treeMsg) addLog(treeMsg);
 
